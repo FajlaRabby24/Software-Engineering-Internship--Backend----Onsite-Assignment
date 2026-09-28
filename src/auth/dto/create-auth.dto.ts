@@ -23,7 +23,7 @@ export class CreateAuthDto {
   password: string;
 
   @IsOptional()
-  @IsEnum(Role, { message: 'Role must be either USER or ADMIN'})
+  @IsEnum(Role, { message: 'Role must be either USER or ADMIN' })
   role?: Role;
 
   @IsOptional()

@@ -1,9 +1,16 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
+import { LoginDto } from './dto/login.dto.js';
 import { UpdateAuthDto } from './dto/update-auth.dto.js';
 import { User } from '../generated/client/client.js';
+import type { JwtPayload, LoginResponse } from './types/auth.types.js';
 
 @Injectable()
 export class AuthService {
@@ -41,6 +48,58 @@ export class AuthService {
     // 4. Send success message
     return {
       message: 'User registered successfully',
+    };
+  }
+
+  async login(loginDto: LoginDto): Promise<LoginResponse> {
+    // 1. Find user by email
+    const user = await this.findByEmail(loginDto.email);
+
+    // 2. If not found throw error
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Check if account is active
+    if (!user.isActive) {
+      throw new UnauthorizedException(
+        'Account is inactive. Please contact support',
+      );
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // 3. Generate accessToken with required payload
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+      isEmailVerified: user.isEmailVerified,
+      phoneNumber: user.phoneNumber,
+      avatarUrl: user.avatarUrl,
+    };
+
+    const secret = process.env.JWT_SECRET || 'super-secret-jwt-key';
+    const expiresIn = (process.env.JWT_EXPIRES_IN ||
+      '1d') as jwt.SignOptions['expiresIn'];
+
+    const accessToken = jwt.sign(payload, secret, {
+      expiresIn,
+    });
+
+    // 4. Return formatted response
+    return {
+      success: true,
+      message: 'Login successful',
+      accessToken,
     };
   }
 
