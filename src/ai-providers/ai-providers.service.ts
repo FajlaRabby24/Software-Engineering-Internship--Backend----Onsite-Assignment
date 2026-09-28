@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { decrypt, encrypt, maskApiKey } from '../common/utils/crypto.util.js';
 import { CreateAIProviderDto } from './dto/create-ai-provider.dto.js';
+import { UpdateAIProviderDto } from './dto/update-ai-provider.dto.js';
 import type {
   AIProviderListResponse,
   AIProviderResponse,
@@ -82,6 +83,46 @@ export class AiProvidersService {
     return {
       success: true,
       provider: this.formatProviderResponse(provider),
+    };
+  }
+
+  async update(
+    id: string,
+    updateAIProviderDto: UpdateAIProviderDto,
+  ): Promise<AIProviderResponse> {
+    const existing = await this.prisma.aIProvider.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('AI Provider not found');
+    }
+
+    if (updateAIProviderDto.isDefault) {
+      await this.prisma.aIProvider.updateMany({
+        where: { isDefault: true, NOT: { id } },
+        data: { isDefault: false },
+      });
+    }
+
+    const data= {...updateAIProviderDto};
+
+    if (updateAIProviderDto.apiKey) {
+      data.apiKey = encrypt(updateAIProviderDto.apiKey);
+    }
+
+    const updated = await this.prisma.aIProvider.update({
+      where: { id },
+      data,
+    });
+
+    return {
+      success: true,
+      message: 'AI provider updated successfully',
+      provider: this.formatProviderResponse(
+        updated,
+        updateAIProviderDto.apiKey,
+      ),
     };
   }
 
