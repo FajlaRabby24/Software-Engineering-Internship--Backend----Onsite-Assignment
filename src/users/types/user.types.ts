@@ -17,3 +17,8 @@ export interface UserProfileResponse {
   success: boolean;
   user: UserProfile;
 }
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+}

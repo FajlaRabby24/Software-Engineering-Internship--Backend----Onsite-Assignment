@@ -9,9 +9,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
 import { CurrentUser } from '../auth/decorators/auth.decorators.js';
-import type { UserProfileResponse } from './types/user.types.js';
+import type {
+  ChangePasswordResponse,
+  UserProfileResponse,
+} from './types/user.types.js';
 
 @Controller('users')
 export class UsersController {
@@ -34,5 +38,15 @@ export class UsersController {
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<UserProfileResponse> {
     return this.usersService.updateProfile(userId, updateProfileDto);
+  }
+
+  @Patch('change-password')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser('sub') userId: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<ChangePasswordResponse> {
+    return this.usersService.changePassword(userId, changePasswordDto);
   }
 }
