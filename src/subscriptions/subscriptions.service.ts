@@ -227,4 +227,77 @@ export class SubscriptionsService {
       },
     };
   }
+
+  async checkAndIncrementUsage(userId: string): Promise<{
+    allowed: boolean;
+    remaining: number;
+    totalLimit: number;
+    resetAt: Date;
+  }> {
+    const statusRes = await this.getStatus(userId);
+    const plan = statusRes.subscription.isActive
+      ? statusRes.subscription.plan
+      : SubscriptionPlan.FREE;
+
+    const totalLimit = this.getLimitForPlan(plan);
+    const now = new Date();
+
+    let record = await this.prisma.usageRecord.findUnique({
+      where: { userId },
+    });
+
+    if (!record) {
+      record = await this.prisma.usageRecord.create({
+        data: {
+          userId,
+          requestCount: 0,
+          totalLimit,
+          resetAt: this.getNextMonthResetDate(),
+        },
+      });
+    } else {
+      if (now >= record.resetAt) {
+        record = await this.prisma.usageRecord.update({
+          where: { userId },
+          data: {
+            requestCount: 0,
+            totalLimit,
+            resetAt: this.getNextMonthResetDate(),
+          },
+        });
+      } else if (record.totalLimit !== totalLimit) {
+        record = await this.prisma.usageRecord.update({
+          where: { userId },
+          data: { totalLimit },
+        });
+      }
+    }
+
+    if (record.requestCount >= record.totalLimit) {
+      return {
+        allowed: false,
+        remaining: 0,
+        totalLimit: record.totalLimit,
+        resetAt: record.resetAt,
+      };
+    }
+
+    const updated = await this.prisma.usageRecord.update({
+      where: { userId },
+      data: {
+        requestCount: {
+          increment: 1,
+        },
+      },
+    });
+
+    const remaining = Math.max(0, updated.totalLimit - updated.requestCount);
+
+    return {
+      allowed: true,
+      remaining,
+      totalLimit: updated.totalLimit,
+      resetAt: updated.resetAt,
+    };
+  }
 }

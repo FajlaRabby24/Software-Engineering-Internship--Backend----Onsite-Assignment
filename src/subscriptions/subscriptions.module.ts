@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service.js';
 import { SubscriptionsController } from './subscriptions.controller.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { UsageLimitGuard } from './guards/usage-limit.guard.js';
 
 @Module({
   imports: [AuthModule],
   controllers: [SubscriptionsController],
-  providers: [SubscriptionsService],
-  exports: [SubscriptionsService],
+  providers: [SubscriptionsService, UsageLimitGuard],
+  exports: [SubscriptionsService, UsageLimitGuard],
 })
 export class SubscriptionsModule {}
