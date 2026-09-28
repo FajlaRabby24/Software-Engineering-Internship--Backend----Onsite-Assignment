@@ -1,7 +1,7 @@
 node_modules
 dist
 .env
-prisma/generated/prisma
+/src/generated/client
 
 .agents
 .claude
