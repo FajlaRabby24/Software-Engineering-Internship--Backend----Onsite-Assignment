@@ -7,9 +7,11 @@ import {
 import bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { DeleteAccountDto } from './dto/delete-account.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import type {
   ChangePasswordResponse,
+  DeleteAccountResponse,
   UserProfileResponse,
 } from './types/user.types.js';
 
@@ -122,6 +124,45 @@ export class UsersService {
     return {
       success: true,
       message: 'Password changed successfully. Please log in again',
+    };
+  }
+
+  async deleteAccount(
+    userId: string,
+    deleteAccountDto: DeleteAccountDto,
+  ): Promise<DeleteAccountResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.isActive) {
+      throw new NotFoundException('User not found or already deleted');
+    }
+
+    const isMatch = await bcrypt.compare(
+      deleteAccountDto.password,
+      user.password,
+    );
+
+    if (!isMatch) {
+      throw new UnauthorizedException('Incorrect password');
+    }
+
+    // Soft delete: deactivate user account
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isActive: false },
+    });
+
+    // Invalidate all active sessions immediately
+    await this.prisma.session.updateMany({
+      where: { userId, isRevoked: false },
+      data: { isRevoked: true },
+    });
+
+    return {
+      success: true,
+      message: 'Account deleted successfully',
     };
   }
 }
