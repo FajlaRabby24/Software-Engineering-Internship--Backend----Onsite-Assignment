@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { LoginDto } from './dto/login.dto.js';
-import { UpdateAuthDto } from './dto/update-auth.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { Role, User } from '../generated/client/client.js';
 import type {
   JwtPayload,
@@ -235,6 +235,51 @@ export class AuthService {
     return {
       success: true,
       user,
+    };
+  }
+
+  async updateProfile(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<UserProfileResponse> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(updateProfileDto.name !== undefined && {
+          name: updateProfileDto.name,
+        }),
+        ...(updateProfileDto.phoneNumber !== undefined && {
+          phoneNumber: updateProfileDto.phoneNumber,
+        }),
+        ...(updateProfileDto.avatarUrl !== undefined && {
+          avatarUrl: updateProfileDto.avatarUrl,
+        }),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isEmailVerified: true,
+        phoneNumber: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return {
+      success: true,
+      user: updatedUser,
     };
   }
 
