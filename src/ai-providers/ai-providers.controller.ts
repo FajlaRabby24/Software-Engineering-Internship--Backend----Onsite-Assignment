@@ -68,4 +68,10 @@ export class AiProvidersController {
   async toggleActive(@Param('id') id: string): Promise<AIProviderResponse> {
     return this.aiProvidersService.toggleActive(id);
   }
+
+  @Patch(':id/set-default')
+  @HttpCode(HttpStatus.OK)
+  async setDefault(@Param('id') id: string): Promise<AIProviderResponse> {
+    return this.aiProvidersService.setDefault(id);
+  }
 }

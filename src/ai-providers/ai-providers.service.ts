@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { decrypt, encrypt, maskApiKey } from '../common/utils/crypto.util.js';
 import { CreateAIProviderDto } from './dto/create-ai-provider.dto.js';
@@ -174,6 +174,39 @@ export class AiProvidersService {
     return {
       success: true,
       message: `AI provider ${nextState ? 'enabled' : 'disabled'} successfully`,
+      provider: this.formatProviderResponse(updated),
+    };
+  }
+
+  async setDefault(id: string): Promise<AIProviderResponse> {
+    const existing = await this.prisma.aIProvider.findUnique({
+      where: { id }, select: {
+        id: true,
+        isActive: true
+      }
+    });
+
+    if (!existing) {
+      throw new NotFoundException('AI Provider not found');
+    }
+
+    if (!existing.isActive) {
+      throw new BadRequestException('Cannot set an inactive AI provider as default');
+    }
+
+    await this.prisma.aIProvider.updateMany({
+      where: { isDefault: true, NOT: { id } },
+      data: { isDefault: false },
+    });
+
+    const updated = await this.prisma.aIProvider.update({
+      where: { id },
+      data: { isDefault: true },
+    });
+
+    return {
+      success: true,
+      message: 'AI provider set as default successfully',
       provider: this.formatProviderResponse(updated),
     };
   }
