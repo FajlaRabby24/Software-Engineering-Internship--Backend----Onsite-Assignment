@@ -150,6 +150,34 @@ export class AiProvidersService {
     };
   }
 
+  async toggleActive(id: string): Promise<AIProviderResponse> {
+    const existing = await this.prisma.aIProvider.findUnique({
+      where: { id },select: {
+        id: true,
+        isActive: true
+      },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('AI Provider not found');
+    }
+
+    const nextState = !existing.isActive;
+
+    const updated = await this.prisma.aIProvider.update({
+      where: { id },
+      data: {
+        isActive: nextState,
+      },
+    });
+
+    return {
+      success: true,
+      message: `AI provider ${nextState ? 'enabled' : 'disabled'} successfully`,
+      provider: this.formatProviderResponse(updated),
+    };
+  }
+
   private formatProviderResponse(
     provider: any,
     rawApiKey?: string,

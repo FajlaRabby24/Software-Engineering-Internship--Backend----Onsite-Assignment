@@ -62,4 +62,10 @@ export class AiProvidersController {
   async remove(@Param('id') id: string): Promise<AIProviderResponse> {
     return this.aiProvidersService.remove(id);
   }
+
+  @Patch(':id/toggle')
+  @HttpCode(HttpStatus.OK)
+  async toggleActive(@Param('id') id: string): Promise<AIProviderResponse> {
+    return this.aiProvidersService.toggleActive(id);
+  }
 }
