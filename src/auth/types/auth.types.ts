@@ -20,3 +20,14 @@ export interface LoginResponse {
   message: string;
   accessToken: string;
 }
+
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface LogoutAllResponse {
+  success: boolean;
+  message: string;
+  revokedCount: number;
+}

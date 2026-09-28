@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
@@ -13,6 +14,8 @@ import { User } from '../generated/client/client.js';
 import type {
   JwtPayload,
   LoginResponse,
+  LogoutAllResponse,
+  LogoutResponse,
   SessionMetadata,
 } from './types/auth.types.js';
 
@@ -116,6 +119,44 @@ export class AuthService {
       success: true,
       message: 'Login successful',
       accessToken,
+    };
+  }
+
+  async logout(token: string): Promise<LogoutResponse> {
+    const session = await this.prisma.session.findUnique({
+      where: { token },
+    });
+
+    if (!session || session.isRevoked) {
+      throw new NotFoundException(
+        'Active session not found or already logged out',
+      );
+    }
+
+    await this.prisma.session.update({
+      where: { token },
+      data: { isRevoked: true },
+    });
+
+    return {
+      success: true,
+      message: 'Logged out successfully from this device',
+    };
+  }
+
+  async logoutAll(userId: string): Promise<LogoutAllResponse> {
+    const result = await this.prisma.session.updateMany({
+      where: {
+        userId,
+        isRevoked: false,
+      },
+      data: { isRevoked: true },
+    });
+
+    return {
+      success: true,
+      message: `Logged out successfully from all devices (${result.count} session(s) revoked)`,
+      revokedCount: result.count,
     };
   }
 
