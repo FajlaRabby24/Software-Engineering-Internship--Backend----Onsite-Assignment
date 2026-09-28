@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
   RemainingUsageResponse,
+  SubscriptionActionResponse,
   SubscriptionStatusResponse,
 } from './types/subscription.types.js';
 import { SubscriptionPlan, SubscriptionStatus } from '../generated/client/enums.js';
@@ -121,6 +122,58 @@ export class SubscriptionsService {
         usedRequests: record.requestCount,
         remainingRequests,
         resetAt: record.resetAt,
+      },
+    };
+  }
+
+  async upgrade(userId: string): Promise<SubscriptionActionResponse> {
+    const statusRes = await this.getStatus(userId);
+    const current = statusRes.subscription;
+
+    if (current.plan === SubscriptionPlan.PREMIUM && current.isActive) {
+      throw new BadRequestException('User already has an active PREMIUM subscription');
+    }
+
+    const now = new Date();
+    // Default 30-day premium billing cycle
+    const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    const subscription = await this.prisma.subscription.update({
+      where: { userId },
+      data: {
+        plan: SubscriptionPlan.PREMIUM,
+        status: SubscriptionStatus.ACTIVE,
+        startDate: now,
+        endDate,
+      },
+    });
+
+    // Update usage limit for PREMIUM immediately (1,000 requests)
+    await this.prisma.usageRecord.upsert({
+      where: { userId },
+      create: {
+        userId,
+        requestCount: 0,
+        totalLimit: this.getLimitForPlan(SubscriptionPlan.PREMIUM),
+        resetAt: this.getNextMonthResetDate(),
+      },
+      update: {
+        totalLimit: this.getLimitForPlan(SubscriptionPlan.PREMIUM),
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Subscription successfully upgraded to PREMIUM for 30 days',
+      subscription: {
+        id: subscription.id,
+        userId: subscription.userId,
+        plan: subscription.plan,
+        status: subscription.status,
+        isActive: true,
+        startDate: subscription.startDate,
+        endDate: subscription.endDate,
+        isLifetime: false,
       },
     };
   }

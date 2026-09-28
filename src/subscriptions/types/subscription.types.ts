@@ -27,3 +27,18 @@ export interface RemainingUsageResponse {
     resetAt: Date;
   };
 }
+
+export interface SubscriptionActionResponse {
+  success: boolean;
+  message: string;
+  subscription: {
+    id: string;
+    userId: string;
+    plan: SubscriptionPlan;
+    status: SubscriptionStatus;
+    isActive: boolean;
+    startDate: Date;
+    endDate: Date | null;
+    isLifetime: boolean;
+  };
+}
