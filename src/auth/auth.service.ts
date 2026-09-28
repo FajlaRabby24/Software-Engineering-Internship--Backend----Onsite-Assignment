@@ -18,6 +18,7 @@ import type {
   LogoutResponse,
   RefreshTokenResponse,
   SessionMetadata,
+  UserProfileResponse,
 } from './types/auth.types.js';
 
 @Injectable()
@@ -107,8 +108,6 @@ export class AuthService {
       },
     });
 
- 
-
     // 5. Return response with both tokens
     return {
       success: true,
@@ -120,8 +119,7 @@ export class AuthService {
 
   // refresh token
   async refresh(refreshToken: string): Promise<RefreshTokenResponse> {
-    const refreshSecret =
-      process.env.JWT_REFRESH_SECRET ;
+    const refreshSecret = process.env.JWT_REFRESH_SECRET;
 
     try {
       await this.jwtService.verifyAsync(refreshToken, {
@@ -213,6 +211,33 @@ export class AuthService {
     };
   }
 
+  async getProfile(userId: string): Promise<UserProfileResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isEmailVerified: true,
+        phoneNumber: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      success: true,
+      user,
+    };
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { email },
@@ -239,12 +264,10 @@ export class AuthService {
       avatarUrl: user.avatarUrl,
     };
 
-    const accessSecret =
-      process.env.JWT_ACCESS_SECRET ;
+    const accessSecret = process.env.JWT_ACCESS_SECRET;
     const accessExpiresIn = (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as any;
 
-    const refreshSecret =
-      process.env.JWT_REFRESH_SECRET ;
+    const refreshSecret = process.env.JWT_REFRESH_SECRET;
     const refreshExpiresIn = (process.env.JWT_REFRESH_EXPIRES_IN ||
       '7d') as any;
 
@@ -263,21 +286,5 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
   }
 }

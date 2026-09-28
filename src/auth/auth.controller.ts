@@ -3,9 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   HttpCode,
   HttpStatus,
   Headers,
@@ -16,7 +13,6 @@ import { AuthService } from './auth.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
-import { UpdateAuthDto } from './dto/update-auth.dto.js';
 import { AuthGuard } from './guards/auth.guard.js';
 import { CurrentUser } from './decorators/auth.decorators.js';
 import type {
@@ -24,6 +20,7 @@ import type {
   LogoutAllResponse,
   LogoutResponse,
   RefreshTokenResponse,
+  UserProfileResponse,
 } from './types/auth.types.js';
 
 @Controller('auth')
@@ -77,23 +74,12 @@ export class AuthController {
     return this.authService.logoutAll(userId);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getProfile(
+    @CurrentUser('sub') userId: string,
+  ): Promise<UserProfileResponse> {
+    return this.authService.getProfile(userId);
   }
 }
