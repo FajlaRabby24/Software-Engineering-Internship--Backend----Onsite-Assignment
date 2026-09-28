@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -36,5 +37,11 @@ export class AiProvidersController {
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<AIProviderListResponse> {
     return this.aiProvidersService.findAll();
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('id') id: string): Promise<AIProviderResponse> {
+    return this.aiProvidersService.findOne(id);
   }
 }

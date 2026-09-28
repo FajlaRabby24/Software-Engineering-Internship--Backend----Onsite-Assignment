@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { decrypt, encrypt, maskApiKey } from '../common/utils/crypto.util.js';
 import { CreateAIProviderDto } from './dto/create-ai-provider.dto.js';
@@ -67,6 +67,21 @@ export class AiProvidersService {
       providers: providers.map((provider) =>
         this.formatProviderResponse(provider),
       ),
+    };
+  }
+
+  async findOne(id: string): Promise<AIProviderResponse> {
+    const provider = await this.prisma.aIProvider.findUnique({
+      where: { id },
+    });
+
+    if (!provider) {
+      throw new NotFoundException('AI Provider not found');
+    }
+
+    return {
+      success: true,
+      provider: this.formatProviderResponse(provider),
     };
   }
 
