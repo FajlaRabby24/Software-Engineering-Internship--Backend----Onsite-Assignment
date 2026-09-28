@@ -1,7 +1,5 @@
 import {
   Controller,
-  Get,
-  Patch,
   Post,
   Body,
   HttpCode,
@@ -14,7 +12,6 @@ import { AuthService } from './auth.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
-import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { AuthGuard } from './guards/auth.guard.js';
 import { CurrentUser } from './decorators/auth.decorators.js';
 import type {
@@ -22,7 +19,6 @@ import type {
   LogoutAllResponse,
   LogoutResponse,
   RefreshTokenResponse,
-  UserProfileResponse,
 } from './types/auth.types.js';
 
 @Controller('auth')
@@ -74,24 +70,5 @@ export class AuthController {
     @CurrentUser('sub') userId: string,
   ): Promise<LogoutAllResponse> {
     return this.authService.logoutAll(userId);
-  }
-
-  @Get('profile')
-  @UseGuards(AuthGuard)
-  @HttpCode(HttpStatus.OK)
-  async getProfile(
-    @CurrentUser('sub') userId: string,
-  ): Promise<UserProfileResponse> {
-    return this.authService.getProfile(userId);
-  }
-
-  @Patch('profile')
-  @UseGuards(AuthGuard)
-  @HttpCode(HttpStatus.OK)
-  async updateProfile(
-    @CurrentUser('sub') userId: string,
-    @Body() updateProfileDto: UpdateProfileDto,
-  ): Promise<UserProfileResponse> {
-    return this.authService.updateProfile(userId, updateProfileDto);
   }
 }

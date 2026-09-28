@@ -9,7 +9,6 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { LoginDto } from './dto/login.dto.js';
-import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { Role, User } from '../generated/client/client.js';
 import type {
   JwtPayload,
@@ -18,7 +17,6 @@ import type {
   LogoutResponse,
   RefreshTokenResponse,
   SessionMetadata,
-  UserProfileResponse,
 } from './types/auth.types.js';
 
 @Injectable()
@@ -208,78 +206,6 @@ export class AuthService {
     return {
       success: true,
       message: `Logged out successfully from all devices (${result.count} session(s) revoked)`,
-    };
-  }
-
-  async getProfile(userId: string): Promise<UserProfileResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        isActive: true,
-        isEmailVerified: true,
-        phoneNumber: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return {
-      success: true,
-      user,
-    };
-  }
-
-  async updateProfile(
-    userId: string,
-    updateProfileDto: UpdateProfileDto,
-  ): Promise<UserProfileResponse> {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!existingUser) {
-      throw new NotFoundException('User not found');
-    }
-
-    const updatedUser = await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...(updateProfileDto.name !== undefined && {
-          name: updateProfileDto.name,
-        }),
-        ...(updateProfileDto.phoneNumber !== undefined && {
-          phoneNumber: updateProfileDto.phoneNumber,
-        }),
-        ...(updateProfileDto.avatarUrl !== undefined && {
-          avatarUrl: updateProfileDto.avatarUrl,
-        }),
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        isActive: true,
-        isEmailVerified: true,
-        phoneNumber: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return {
-      success: true,
-      user: updatedUser,
     };
   }
 

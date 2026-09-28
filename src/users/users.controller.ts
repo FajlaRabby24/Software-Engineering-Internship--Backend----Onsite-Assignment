@@ -1,0 +1,38 @@
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
+import { UsersService } from './users.service.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { AuthGuard } from '../auth/guards/auth.guard.js';
+import { CurrentUser } from '../auth/decorators/auth.decorators.js';
+import type { UserProfileResponse } from './types/user.types.js';
+
+@Controller('users')
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getProfile(
+    @CurrentUser('sub') userId: string,
+  ): Promise<UserProfileResponse> {
+    return this.usersService.getProfile(userId);
+  }
+
+  @Patch('profile')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @CurrentUser('sub') userId: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<UserProfileResponse> {
+    return this.usersService.updateProfile(userId, updateProfileDto);
+  }
+}
