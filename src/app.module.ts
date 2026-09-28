@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { AiProvidersModule } from './ai-providers/ai-providers.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -18,6 +19,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     PrismaModule,
     AuthModule,
     UsersModule,
+    AiProvidersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
