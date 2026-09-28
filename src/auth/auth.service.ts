@@ -27,6 +27,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  // register user
   async create(createAuthDto: CreateAuthDto): Promise<{ message: string }> {
     // 1. Check if user already exists
     const existingUser = await this.findByEmail(createAuthDto.email);
@@ -62,6 +63,7 @@ export class AuthService {
     };
   }
 
+  // login user
   async login(
     loginDto: LoginDto,
     metadata?: SessionMetadata,
@@ -116,9 +118,10 @@ export class AuthService {
     };
   }
 
+  // refresh token
   async refresh(refreshToken: string): Promise<RefreshTokenResponse> {
     const refreshSecret =
-      process.env.JWT_REFRESH_SECRET || 'refresh-token-secret-key';
+      process.env.JWT_REFRESH_SECRET ;
 
     try {
       await this.jwtService.verifyAsync(refreshToken, {
@@ -207,7 +210,6 @@ export class AuthService {
     return {
       success: true,
       message: `Logged out successfully from all devices (${result.count} session(s) revoked)`,
-      revokedCount: result.count,
     };
   }
 
@@ -217,6 +219,7 @@ export class AuthService {
     });
   }
 
+  // Generate both Access Token and Refresh Token
   private async generateTokens(user: {
     id: string;
     email: string;
@@ -237,13 +240,11 @@ export class AuthService {
     };
 
     const accessSecret =
-      process.env.JWT_ACCESS_SECRET ||
-      process.env.JWT_SECRET ||
-      'access-token-secret-key';
+      process.env.JWT_ACCESS_SECRET ;
     const accessExpiresIn = (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as any;
 
     const refreshSecret =
-      process.env.JWT_REFRESH_SECRET || 'refresh-token-secret-key';
+      process.env.JWT_REFRESH_SECRET ;
     const refreshExpiresIn = (process.env.JWT_REFRESH_EXPIRES_IN ||
       '7d') as any;
 

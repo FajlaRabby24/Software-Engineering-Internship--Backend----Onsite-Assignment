@@ -24,7 +24,6 @@ export interface LoginResponse {
   message: string;
   accessToken: string;
   refreshToken: string;
-  activeSessionsCount?: number;
 }
 
 export interface RefreshTokenResponse {
@@ -42,5 +41,4 @@ export interface LogoutResponse {
 export interface LogoutAllResponse {
   success: boolean;
   message: string;
-  revokedCount: number;
 }
