@@ -2,3 +2,9 @@ enum Role {
   USER
   ADMIN
 }
+
+enum AIProviderType {
+  OPENAI
+  CLAUDE
+  GEMINI
+}
