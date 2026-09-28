@@ -1,0 +1,12 @@
+model UsageRecord {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestCount Int      @default(0)
+  totalLimit   Int      @default(50) // e.g. 50 for FREE, 1000 for PREMIUM
+  resetAt      DateTime // e.g. End of day or month
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("usage_records")
+}

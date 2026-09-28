@@ -8,3 +8,14 @@ enum AIProviderType {
   CLAUDE
   GEMINI
 }
+
+enum SubscriptionPlan {
+  FREE
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
