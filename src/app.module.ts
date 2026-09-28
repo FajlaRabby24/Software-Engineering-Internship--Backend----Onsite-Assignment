@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AiProvidersModule } from './ai-providers/ai-providers.module.js';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -20,6 +21,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AuthModule,
     UsersModule,
     AiProvidersModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
