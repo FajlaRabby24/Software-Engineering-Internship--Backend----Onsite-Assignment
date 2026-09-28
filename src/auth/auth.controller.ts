@@ -8,6 +8,8 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Headers,
+  Ip,
 } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
@@ -32,8 +34,12 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() ipAddress?: string,
+  ): Promise<LoginResponse> {
+    return this.authService.login(loginDto, { userAgent, ipAddress });
   }
 
   @Get()

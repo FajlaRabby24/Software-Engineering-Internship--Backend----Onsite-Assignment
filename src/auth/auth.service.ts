@@ -4,17 +4,24 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { UpdateAuthDto } from './dto/update-auth.dto.js';
 import { User } from '../generated/client/client.js';
-import type { JwtPayload, LoginResponse } from './types/auth.types.js';
+import type {
+  JwtPayload,
+  LoginResponse,
+  SessionMetadata,
+} from './types/auth.types.js';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async create(createAuthDto: CreateAuthDto): Promise<{ message: string }> {
     // 1. Check if user already exists
@@ -51,7 +58,10 @@ export class AuthService {
     };
   }
 
-  async login(loginDto: LoginDto): Promise<LoginResponse> {
+  async login(
+    loginDto: LoginDto,
+    metadata?: SessionMetadata,
+  ): Promise<LoginResponse> {
     // 1. Find user by email
     const user = await this.findByEmail(loginDto.email);
 
@@ -87,12 +97,18 @@ export class AuthService {
       avatarUrl: user.avatarUrl,
     };
 
-    const secret = process.env.JWT_SECRET || 'super-secret-jwt-key';
-    const expiresIn = (process.env.JWT_EXPIRES_IN ||
-      '1d') as jwt.SignOptions['expiresIn'];
+    const accessToken = await this.jwtService.signAsync(payload);
 
-    const accessToken = jwt.sign(payload, secret, {
-      expiresIn,
+    // Create a new session in database for tracking
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+    await this.prisma.session.create({
+      data: {
+        userId: user.id,
+        token: accessToken,
+        userAgent: metadata?.userAgent,
+        ipAddress: metadata?.ipAddress,
+        expiresAt,
+      },
     });
 
     // 4. Return formatted response

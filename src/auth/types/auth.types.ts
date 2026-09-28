@@ -10,6 +10,11 @@ export interface JwtPayload {
   avatarUrl: string | null;
 }
 
+export interface SessionMetadata {
+  userAgent?: string;
+  ipAddress?: string;
+}
+
 export interface LoginResponse {
   success: boolean;
   message: string;
