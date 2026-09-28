@@ -10,6 +10,10 @@ export interface JwtPayload {
   avatarUrl: string | null;
 }
 
+export interface JwtRefreshPayload {
+  sub: string;
+}
+
 export interface SessionMetadata {
   userAgent?: string;
   ipAddress?: string;
@@ -19,6 +23,15 @@ export interface LoginResponse {
   success: boolean;
   message: string;
   accessToken: string;
+  refreshToken: string;
+  activeSessionsCount?: number;
+}
+
+export interface RefreshTokenResponse {
+  success: boolean;
+  message: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface LogoutResponse {

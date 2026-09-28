@@ -15,13 +15,15 @@ import {
 import { AuthService } from './auth.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { LoginDto } from './dto/login.dto.js';
+import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { UpdateAuthDto } from './dto/update-auth.dto.js';
 import { AuthGuard } from './guards/auth.guard.js';
-import { CurrentToken, CurrentUser } from './decorators/auth.decorators.js';
+import { CurrentUser } from './decorators/auth.decorators.js';
 import type {
   LoginResponse,
   LogoutAllResponse,
   LogoutResponse,
+  RefreshTokenResponse,
 } from './types/auth.types.js';
 
 @Controller('auth')
@@ -29,7 +31,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-   @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createAuthDto: CreateAuthDto,
   ): Promise<{ success: boolean; message: string }> {
@@ -50,11 +52,20 @@ export class AuthController {
     return this.authService.login(loginDto, { userAgent, ipAddress });
   }
 
-  @Post('logout')
-  @UseGuards(AuthGuard)
+  @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async logout(@CurrentToken() token: string): Promise<LogoutResponse> {
-    return this.authService.logout(token);
+  async refresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<RefreshTokenResponse> {
+    return this.authService.refresh(refreshTokenDto.refreshToken);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<LogoutResponse> {
+    return this.authService.logout(refreshTokenDto.refreshToken);
   }
 
   @Post('logout-all')

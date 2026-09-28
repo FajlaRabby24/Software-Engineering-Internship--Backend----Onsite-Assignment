@@ -30,29 +30,27 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+      const accessSecret =
+        process.env.JWT_ACCESS_SECRET ||
+        process.env.JWT_SECRET ||
+        'access-token-secret-key';
 
-      // Verify that this specific session is not soft-revoked in database
-      const session = await this.prisma.session.findUnique({
-        where: { token },
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
+        secret: accessSecret,
       });
 
-      if (!session) {
-        throw new UnauthorizedException(
-          'Session not found. Please log in again',
-        );
+      // Quick check that the user account still exists and is active
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+        select: { id: true, isActive: true },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User account no longer exists');
       }
 
-      if (session.isRevoked) {
-        throw new UnauthorizedException(
-          'Session has been revoked. Please log in again',
-        );
-      }
-
-      if (session.expiresAt < new Date()) {
-        throw new UnauthorizedException(
-          'Session has expired. Please log in again',
-        );
+      if (!user.isActive) {
+        throw new UnauthorizedException('User account has been deactivated');
       }
 
       request.user = payload;
@@ -62,7 +60,7 @@ export class AuthGuard implements CanActivate {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException('Invalid or expired access token');
     }
   }
 

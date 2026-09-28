@@ -10,13 +10,10 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [
-        `${process.cwd()}/.env`,
-        `${process.cwd()}/.env.local`,
-      ],
+      envFilePath: [`${process.cwd()}/.env`, `${process.cwd()}/.env.local`],
       isGlobal: true,
     }),
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
