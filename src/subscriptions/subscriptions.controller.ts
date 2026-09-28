@@ -1,34 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service.js';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto.js';
-import { UpdateSubscriptionDto } from './dto/update-subscription.dto.js';
+import { AuthGuard } from '../auth/guards/auth.guard.js';
+import { CurrentUser } from '../auth/decorators/auth.decorators.js';
+import type { SubscriptionStatusResponse } from './types/subscription.types.js';
 
 @Controller('subscriptions')
+@UseGuards(AuthGuard)
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
-  @Post()
-  create(@Body() createSubscriptionDto: CreateSubscriptionDto) {
-    return this.subscriptionsService.create(createSubscriptionDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.subscriptionsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.subscriptionsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSubscriptionDto: UpdateSubscriptionDto) {
-    return this.subscriptionsService.update(+id, updateSubscriptionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.subscriptionsService.remove(+id);
+  @Get('status')
+  @HttpCode(HttpStatus.OK)
+  async getStatus(
+    @CurrentUser('sub') userId: string,
+  ): Promise<SubscriptionStatusResponse> {
+    return this.subscriptionsService.getStatus(userId);
   }
 }

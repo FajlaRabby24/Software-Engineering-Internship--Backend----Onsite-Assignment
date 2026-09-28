@@ -1,26 +1,54 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto.js';
-import { UpdateSubscriptionDto } from './dto/update-subscription.dto.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import type { SubscriptionStatusResponse } from './types/subscription.types.js';
+import { SubscriptionPlan, SubscriptionStatus } from '../generated/client/enums.js';
 
 @Injectable()
 export class SubscriptionsService {
-  create(createSubscriptionDto: CreateSubscriptionDto) {
-    return 'This action adds a new subscription';
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
-    return `This action returns all subscriptions`;
-  }
+  async getStatus(userId: string): Promise<SubscriptionStatusResponse> {
+    let subscription = await this.prisma.subscription.findUnique({
+      where: { userId },
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} subscription`;
-  }
+    // Auto-create FREE subscription if user doesn't have one yet
+    if (!subscription) {
+      subscription = await this.prisma.subscription.create({
+        data: {
+          userId,
+          plan: SubscriptionPlan.FREE,
+          status: SubscriptionStatus.ACTIVE,
+        },
+      });
+    }
 
-  update(id: number, updateSubscriptionDto: UpdateSubscriptionDto) {
-    return `This action updates a #${id} subscription`;
-  }
+    // Check expiration for plans with an endDate
+    const now = new Date();
+    const isExpired = subscription.endDate ? now > subscription.endDate : false;
+    const effectiveStatus = isExpired ? SubscriptionStatus.EXPIRED : subscription.status;
+    const isActive = effectiveStatus === SubscriptionStatus.ACTIVE;
 
-  remove(id: number) {
-    return `This action removes a #${id} subscription`;
+    // If newly expired, update status in DB
+    if (isExpired && subscription.status !== SubscriptionStatus.EXPIRED) {
+      await this.prisma.subscription.update({
+        where: { id: subscription.id },
+        data: { status: SubscriptionStatus.EXPIRED },
+      });
+    }
+
+    return {
+      success: true,
+      subscription: {
+        id: subscription.id,
+        userId: subscription.userId,
+        plan: subscription.plan,
+        status: effectiveStatus,
+        isActive,
+        startDate: subscription.startDate,
+        endDate: subscription.endDate,
+        isLifetime: !subscription.endDate,
+      },
+    };
   }
 }
