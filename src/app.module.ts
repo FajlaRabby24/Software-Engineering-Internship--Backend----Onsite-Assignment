@@ -14,7 +14,6 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
         `${process.cwd()}/.env.local`,
       ],
       isGlobal: true,
-      
     })
   ],
   controllers: [AppController],
