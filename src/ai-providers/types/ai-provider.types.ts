@@ -18,3 +18,9 @@ export interface AIProviderResponse {
   message?: string;
   provider: AIProviderResponseData;
 }
+
+export interface AIProviderListResponse {
+  success: boolean;
+  count: number;
+  providers: AIProviderResponseData[];
+}

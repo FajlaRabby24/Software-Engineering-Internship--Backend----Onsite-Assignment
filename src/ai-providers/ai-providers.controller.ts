@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -12,7 +13,10 @@ import { AuthGuard } from '../auth/guards/auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { Role } from '../generated/client/enums.js';
-import type { AIProviderResponse } from './types/ai-provider.types.js';
+import type {
+  AIProviderListResponse,
+  AIProviderResponse,
+} from './types/ai-provider.types.js';
 
 @Controller('ai-providers')
 @UseGuards(AuthGuard, RolesGuard)
@@ -26,5 +30,11 @@ export class AiProvidersController {
     @Body() createDto: CreateAIProviderDto,
   ): Promise<AIProviderResponse> {
     return this.aiProvidersService.create(createDto);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async findAll(): Promise<AIProviderListResponse> {
+    return this.aiProvidersService.findAll();
   }
 }

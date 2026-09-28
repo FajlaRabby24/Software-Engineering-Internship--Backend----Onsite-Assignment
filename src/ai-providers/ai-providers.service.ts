@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { encrypt, maskApiKey } from '../common/utils/crypto.util.js';
+import { decrypt, encrypt, maskApiKey } from '../common/utils/crypto.util.js';
 import { CreateAIProviderDto } from './dto/create-ai-provider.dto.js';
 import type {
+  AIProviderListResponse,
   AIProviderResponse,
   AIProviderResponseData,
 } from './types/ai-provider.types.js';
@@ -55,15 +56,37 @@ export class AiProvidersService {
     };
   }
 
+  async findAll(): Promise<AIProviderListResponse> {
+    const providers = await this.prisma.aIProvider.findMany({
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
+    });
+
+    return {
+      success: true,
+      count: providers.length,
+      providers: providers.map((provider) =>
+        this.formatProviderResponse(provider),
+      ),
+    };
+  }
+
   private formatProviderResponse(
     provider: any,
     rawApiKey?: string,
   ): AIProviderResponseData {
+    let masked = '••••••••••••';
+    try {
+      const key = rawApiKey || decrypt(provider.apiKey);
+      masked = maskApiKey(key);
+    } catch {
+      masked = maskApiKey(provider.apiKey);
+    }
+
     return {
       id: provider.id,
       name: provider.name,
       type: provider.type,
-      apiKey: rawApiKey ? maskApiKey(rawApiKey) : maskApiKey('••••••••••••'),
+      apiKey: masked,
       baseUrl: provider.baseUrl,
       models: provider.models,
       isActive: provider.isActive,
