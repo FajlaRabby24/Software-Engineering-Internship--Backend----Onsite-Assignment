@@ -177,4 +177,54 @@ export class SubscriptionsService {
       },
     };
   }
+
+  async downgrade(userId: string): Promise<SubscriptionActionResponse> {
+    const statusRes = await this.getStatus(userId);
+    const current = statusRes.subscription;
+
+    if (current.plan === SubscriptionPlan.FREE && current.isActive) {
+      throw new BadRequestException('User is already on the FREE plan');
+    }
+
+    const now = new Date();
+
+    const subscription = await this.prisma.subscription.update({
+      where: { userId },
+      data: {
+        plan: SubscriptionPlan.FREE,
+        status: SubscriptionStatus.ACTIVE,
+        startDate: now,
+        endDate: null, // Lifetime free
+      },
+    });
+
+    // Update usage limit to FREE (50 requests)
+    await this.prisma.usageRecord.upsert({
+      where: { userId },
+      create: {
+        userId,
+        requestCount: 0,
+        totalLimit: this.getLimitForPlan(SubscriptionPlan.FREE),
+        resetAt: this.getNextMonthResetDate(),
+      },
+      update: {
+        totalLimit: this.getLimitForPlan(SubscriptionPlan.FREE),
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Subscription successfully downgraded to FREE plan',
+      subscription: {
+        id: subscription.id,
+        userId: subscription.userId,
+        plan: subscription.plan,
+        status: subscription.status,
+        isActive: true,
+        startDate: subscription.startDate,
+        endDate: null,
+        isLifetime: true,
+      },
+    };
+  }
 }

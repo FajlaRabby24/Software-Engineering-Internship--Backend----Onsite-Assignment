@@ -43,4 +43,12 @@ export class SubscriptionsController {
   ): Promise<SubscriptionActionResponse> {
     return this.subscriptionsService.upgrade(userId);
   }
+
+  @Post('downgrade')
+  @HttpCode(HttpStatus.OK)
+  async downgrade(
+    @CurrentUser('sub') userId: string,
+  ): Promise<SubscriptionActionResponse> {
+    return this.subscriptionsService.downgrade(userId);
+  }
 }
