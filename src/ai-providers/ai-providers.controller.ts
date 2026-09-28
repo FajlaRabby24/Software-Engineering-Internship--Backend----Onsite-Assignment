@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -54,5 +55,11 @@ export class AiProvidersController {
     @Body() updateDto: UpdateAIProviderDto,
   ): Promise<AIProviderResponse> {
     return this.aiProvidersService.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id') id: string): Promise<AIProviderResponse> {
+    return this.aiProvidersService.remove(id);
   }
 }

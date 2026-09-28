@@ -126,6 +126,30 @@ export class AiProvidersService {
     };
   }
 
+  async remove(id: string): Promise<AIProviderResponse> {
+    const existing = await this.prisma.aIProvider.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('AI Provider not found');
+    }
+
+    const updated = await this.prisma.aIProvider.update({
+      where: { id },
+      data: {
+        isActive: false,
+        isDefault: false,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'AI provider soft deleted successfully',
+      provider: this.formatProviderResponse(updated),
+    };
+  }
+
   private formatProviderResponse(
     provider: any,
     rawApiKey?: string,
