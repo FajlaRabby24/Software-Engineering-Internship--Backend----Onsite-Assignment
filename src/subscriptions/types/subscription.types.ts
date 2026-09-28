@@ -16,3 +16,14 @@ export interface SubscriptionStatusResponse {
     isLifetime: boolean;
   };
 }
+
+export interface RemainingUsageResponse {
+  success: boolean;
+  usage: {
+    plan: SubscriptionPlan;
+    totalLimit: number;
+    usedRequests: number;
+    remainingRequests: number;
+    resetAt: Date;
+  };
+}

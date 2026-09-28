@@ -8,7 +8,10 @@ import {
 import { SubscriptionsService } from './subscriptions.service.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
 import { CurrentUser } from '../auth/decorators/auth.decorators.js';
-import type { SubscriptionStatusResponse } from './types/subscription.types.js';
+import type {
+  RemainingUsageResponse,
+  SubscriptionStatusResponse,
+} from './types/subscription.types.js';
 
 @Controller('subscriptions')
 @UseGuards(AuthGuard)
@@ -21,5 +24,13 @@ export class SubscriptionsController {
     @CurrentUser('sub') userId: string,
   ): Promise<SubscriptionStatusResponse> {
     return this.subscriptionsService.getStatus(userId);
+  }
+
+  @Get('remaining')
+  @HttpCode(HttpStatus.OK)
+  async getRemaining(
+    @CurrentUser('sub') userId: string,
+  ): Promise<RemainingUsageResponse> {
+    return this.subscriptionsService.getRemainingUsage(userId);
   }
 }
