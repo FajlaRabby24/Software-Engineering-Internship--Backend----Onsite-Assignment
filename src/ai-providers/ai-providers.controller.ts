@@ -18,6 +18,7 @@ import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { Role } from '../generated/client/enums.js';
 import type {
+  AIProviderHealthResponse,
   AIProviderListResponse,
   AIProviderResponse,
 } from './types/ai-provider.types.js';
@@ -73,5 +74,13 @@ export class AiProvidersController {
   @HttpCode(HttpStatus.OK)
   async setDefault(@Param('id') id: string): Promise<AIProviderResponse> {
     return this.aiProvidersService.setDefault(id);
+  }
+
+  @Get(':id/health')
+  @HttpCode(HttpStatus.OK)
+  async checkHealth(
+    @Param('id') id: string,
+  ): Promise<AIProviderHealthResponse> {
+    return this.aiProvidersService.checkHealth(id);
   }
 }

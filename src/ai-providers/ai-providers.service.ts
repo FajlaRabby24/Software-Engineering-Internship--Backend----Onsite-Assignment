@@ -4,6 +4,7 @@ import { decrypt, encrypt, maskApiKey } from '../common/utils/crypto.util.js';
 import { CreateAIProviderDto } from './dto/create-ai-provider.dto.js';
 import { UpdateAIProviderDto } from './dto/update-ai-provider.dto.js';
 import type {
+  AIProviderHealthResponse,
   AIProviderListResponse,
   AIProviderResponse,
   AIProviderResponseData,
@@ -209,6 +210,113 @@ export class AiProvidersService {
       message: 'AI provider set as default successfully',
       provider: this.formatProviderResponse(updated),
     };
+  }
+
+  async checkHealth(id: string): Promise<AIProviderHealthResponse> {
+    const provider = await this.prisma.aIProvider.findUnique({
+      where: { id },
+    });
+
+    if (!provider) {
+      throw new NotFoundException('AI Provider not found');
+    }
+
+    let apiKey = '';
+    try {
+      apiKey = decrypt(provider.apiKey);
+    } catch {
+      apiKey = provider.apiKey;
+    }
+
+    const start = Date.now();
+
+    try {
+      let endpoint = '';
+      let options: RequestInit = {
+        signal: AbortSignal.timeout(10000), // 10s timeout
+      };
+
+      if (provider.type === 'OPENAI') {
+        const base = (provider.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
+        endpoint = `${base}/models`;
+        options = {
+          ...options,
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+        };
+      } else if (provider.type === 'CLAUDE') {
+        const base = (provider.baseUrl || 'https://api.anthropic.com/v1').replace(/\/+$/, '');
+        endpoint = `${base}/models`;
+        options = {
+          ...options,
+          method: 'GET',
+          headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+          },
+        };
+      } else if (provider.type === 'GEMINI') {
+        const base = (provider.baseUrl || 'https://generativelanguage.googleapis.com/v1beta').replace(/\/+$/, '');
+        endpoint = `${base}/models?key=${encodeURIComponent(apiKey)}`;
+        options = {
+          ...options,
+          method: 'GET',
+        };
+      } else {
+        const base = provider.baseUrl || '';
+        endpoint = base;
+        options = {
+          ...options,
+          method: 'GET',
+        };
+      }
+
+      const response = await fetch(endpoint, options);
+      const latencyMs = Date.now() - start;
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return {
+          success: false,
+          id: provider.id,
+          name: provider.name,
+          type: provider.type,
+          status: 'unhealthy',
+          latencyMs,
+          message: `Provider health check failed with HTTP ${response.status}`,
+          details: {
+            statusCode: response.status,
+            error: errorText.slice(0, 500),
+          },
+        };
+      }
+
+      return {
+        success: true,
+        id: provider.id,
+        name: provider.name,
+        type: provider.type,
+        status: 'healthy',
+        latencyMs,
+        message: 'Provider is healthy and reachable',
+      };
+    } catch (err: any) {
+      const latencyMs = Date.now() - start;
+      return {
+        success: false,
+        id: provider.id,
+        name: provider.name,
+        type: provider.type,
+        status: 'unhealthy',
+        latencyMs,
+        message: err?.message || 'Failed to connect to provider endpoint',
+        details: {
+          error: String(err),
+        },
+      };
+    }
   }
 
   private formatProviderResponse(

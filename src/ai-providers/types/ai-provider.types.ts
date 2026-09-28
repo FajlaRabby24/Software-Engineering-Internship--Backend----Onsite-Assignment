@@ -24,3 +24,14 @@ export interface AIProviderListResponse {
   count: number;
   providers: AIProviderResponseData[];
 }
+
+export interface AIProviderHealthResponse {
+  success: boolean;
+  id: string;
+  name: string;
+  type: AIProviderType;
+  status: 'healthy' | 'unhealthy';
+  latencyMs: number;
+  message: string;
+  details?: Record<string, any>;
+}
