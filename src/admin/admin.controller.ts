@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { AdminService } from './admin.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
+import { GetSubscriptionsFilterDto } from './dto/get-subscriptions-filter.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
@@ -20,6 +21,7 @@ import { CurrentUser } from '../auth/decorators/auth.decorators.js';
 import { Role } from '../generated/client/enums.js';
 import type {
   AdminSubscriptionResponse,
+  AdminSubscriptionsListResponse,
   AdminUsersListResponse,
   DashboardStatsResponse,
   UserStatusResponse,
@@ -74,4 +76,13 @@ export class AdminController {
   ): Promise<AdminSubscriptionResponse> {
     return this.adminService.updateSubscription(userId, dto);
   }
+
+  @Get('subscriptions')
+  @HttpCode(HttpStatus.OK)
+  async getSubscriptions(
+    @Query() filterDto: GetSubscriptionsFilterDto,
+  ): Promise<AdminSubscriptionsListResponse> {
+    return this.adminService.getSubscriptions(filterDto);
+  }
 }
+

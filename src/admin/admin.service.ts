@@ -1,11 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
+import { GetSubscriptionsFilterDto } from './dto/get-subscriptions-filter.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service.js';
 import type {
+  AdminSubscriptionItem,
   AdminSubscriptionResponse,
+  AdminSubscriptionsListResponse,
   AdminUsersListResponse,
   DashboardStatsResponse,
   UserStatusResponse,
@@ -378,4 +381,94 @@ export class AdminService {
       },
     };
   }
+
+  /**
+   * Lists subscriptions with pagination, filtering by plan/status, and user name/email search.
+   */
+  async getSubscriptions(
+    filterDto: GetSubscriptionsFilterDto,
+  ): Promise<AdminSubscriptionsListResponse> {
+    const page = filterDto.page && filterDto.page > 0 ? filterDto.page : 1;
+    const limit = filterDto.limit && filterDto.limit > 0 ? filterDto.limit : 10;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (filterDto.plan) {
+      where.plan = filterDto.plan;
+    }
+
+    if (filterDto.status) {
+      where.status = filterDto.status;
+    }
+
+    if (filterDto.search && filterDto.search.trim()) {
+      const search = filterDto.search.trim();
+      where.user = {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+        ],
+      };
+    }
+
+    const [total, subscriptions] = await Promise.all([
+      this.prisma.subscription.count({ where }),
+      this.prisma.subscription.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          userId: true,
+          plan: true,
+          status: true,
+          startDate: true,
+          endDate: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              isActive: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const now = new Date();
+    const items: AdminSubscriptionItem[] = subscriptions.map((sub) => {
+      const isExpired = sub.endDate ? now > sub.endDate : false;
+      const isActive = sub.status === SubscriptionStatus.ACTIVE && !isExpired;
+
+      return {
+        id: sub.id,
+        userId: sub.userId,
+        plan: sub.plan,
+        status: sub.status,
+        isActive,
+        startDate: sub.startDate,
+        endDate: sub.endDate,
+        createdAt: sub.createdAt,
+        user: sub.user,
+      };
+    });
+
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    return {
+      success: true,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+      subscriptions: items,
+    };
+  }
 }
+

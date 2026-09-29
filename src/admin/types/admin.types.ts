@@ -86,3 +86,33 @@ export interface AdminSubscriptionResponse {
     endDate: Date | null;
   };
 }
+
+export interface AdminSubscriptionItem {
+  id: string;
+  userId: string;
+  plan: string;
+  status: string;
+  isActive: boolean;
+  startDate: Date;
+  endDate: Date | null;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    isActive: boolean;
+  };
+}
+
+export interface AdminSubscriptionsListResponse {
+  success: boolean;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  subscriptions: AdminSubscriptionItem[];
+}
+
+
