@@ -12,12 +12,14 @@ import {
 import { AdminService } from './admin.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
+import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { CurrentUser } from '../auth/decorators/auth.decorators.js';
 import { Role } from '../generated/client/enums.js';
 import type {
+  AdminSubscriptionResponse,
   AdminUsersListResponse,
   DashboardStatsResponse,
   UserStatusResponse,
@@ -62,5 +64,14 @@ export class AdminController {
     @Body() dto: UpdateUserRoleDto,
   ): Promise<UserStatusResponse> {
     return this.adminService.updateUserRole(targetUserId, currentAdminId, dto);
+  }
+
+  @Patch('subscriptions/:userId')
+  @HttpCode(HttpStatus.OK)
+  async updateSubscription(
+    @Param('userId') userId: string,
+    @Body() dto: AdminUpdateSubscriptionDto,
+  ): Promise<AdminSubscriptionResponse> {
+    return this.adminService.updateSubscription(userId, dto);
   }
 }

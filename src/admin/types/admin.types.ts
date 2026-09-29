@@ -72,3 +72,17 @@ export interface UserStatusResponse {
     isActive: boolean;
   };
 }
+
+export interface AdminSubscriptionResponse {
+  success: boolean;
+  message: string;
+  subscription: {
+    id: string;
+    userId: string;
+    plan: string;
+    status: string;
+    isActive: boolean;
+    startDate: Date;
+    endDate: Date | null;
+  };
+}

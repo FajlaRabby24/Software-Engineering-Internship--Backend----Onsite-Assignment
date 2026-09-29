@@ -2,7 +2,10 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
+import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service.js';
 import type {
+  AdminSubscriptionResponse,
   AdminUsersListResponse,
   DashboardStatsResponse,
   UserStatusResponse,
@@ -291,6 +294,88 @@ export class AdminService {
       success: true,
       message: `User role successfully updated to ${dto.role}`,
       user: updated,
+    };
+  }
+
+  /**
+   * Admin manual override for user subscription and quotas.
+   * Wraps Subscription update and UsageRecord update in a prisma.$transaction.
+   */
+  async updateSubscription(
+    userId: string,
+    dto: AdminUpdateSubscriptionDto,
+  ): Promise<AdminSubscriptionResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const now = new Date();
+    let endDate: Date | null = null;
+
+    if (dto.plan === SubscriptionPlan.PREMIUM) {
+      const days = dto.durationDays && dto.durationDays > 0 ? dto.durationDays : 30;
+      endDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+    }
+
+    const status = dto.status || SubscriptionStatus.ACTIVE;
+    const totalLimit = dto.plan === SubscriptionPlan.PREMIUM ? 1000 : 50;
+
+    const nextMonthReset = new Date();
+    nextMonthReset.setMonth(nextMonthReset.getMonth() + 1);
+    nextMonthReset.setDate(1);
+    nextMonthReset.setHours(0, 0, 0, 0);
+
+    const [subscription] = await this.prisma.$transaction([
+      this.prisma.subscription.upsert({
+        where: { userId },
+        create: {
+          userId,
+          plan: dto.plan,
+          status,
+          startDate: now,
+          endDate,
+        },
+        update: {
+          plan: dto.plan,
+          status,
+          startDate: now,
+          endDate,
+        },
+      }),
+      this.prisma.usageRecord.upsert({
+        where: { userId },
+        create: {
+          userId,
+          requestCount: 0,
+          totalLimit,
+          resetAt: nextMonthReset,
+        },
+        update: {
+          totalLimit,
+        },
+      }),
+    ]);
+
+    const isExpired = subscription.endDate ? now > subscription.endDate : false;
+    const isActive = subscription.status === SubscriptionStatus.ACTIVE && !isExpired;
+
+    return {
+      success: true,
+      message: `User subscription successfully updated to ${dto.plan}`,
+      subscription: {
+        id: subscription.id,
+        userId: subscription.userId,
+        plan: subscription.plan,
+        status: subscription.status,
+        isActive,
+        startDate: subscription.startDate,
+        endDate: subscription.endDate,
+      },
     };
   }
 }
