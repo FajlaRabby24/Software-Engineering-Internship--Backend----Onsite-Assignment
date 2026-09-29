@@ -11,6 +11,7 @@ import type {
   ChatResponse,
   ConversationDetailResponse,
   ConversationListResponse,
+  StreamChunkEvent,
 } from './types/chat.types.js';
 import {
   AIProviderType,
@@ -245,6 +246,232 @@ export class ChatService {
   }
 
   /**
+   * Async generator that yields text chunks as they arrive from the provider
+   */
+  async *streamLlm(
+    provider: ProviderConfig,
+    model: string,
+    messages: { role: string; content: string }[],
+  ): AsyncGenerator<string, void, unknown> {
+    switch (provider.type) {
+      case AIProviderType.OPENAI:
+        yield* this.streamOpenAI(provider, model, messages);
+        break;
+      case AIProviderType.CLAUDE:
+        yield* this.streamClaude(provider, model, messages);
+        break;
+      case AIProviderType.GEMINI:
+        yield* this.streamGemini(provider, model, messages);
+        break;
+      default:
+        throw new BadRequestException(`Unsupported provider type: ${provider.type}`);
+    }
+  }
+
+  private async *streamOpenAI(
+    provider: ProviderConfig,
+    model: string,
+    messages: { role: string; content: string }[],
+  ): AsyncGenerator<string, void, unknown> {
+    const base = (provider.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
+    const url = `${base}/chat/completions`;
+
+    const formattedMessages = messages.map((m) => ({
+      role: m.role.toLowerCase() === 'assistant' ? 'assistant' : m.role.toLowerCase() === 'system' ? 'system' : 'user',
+      content: m.content,
+    }));
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${provider.apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: formattedMessages,
+        stream: true,
+      }),
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!response.ok) {
+      const err = await response.text().catch(() => '');
+      throw new InternalServerErrorException(
+        `OpenAI stream error (${response.status}): ${err.slice(0, 300)}`,
+      );
+    }
+
+    if (!response.body) return;
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.slice(5).trim();
+        if (dataStr === '[DONE]') return;
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          const chunk = parsed.choices?.[0]?.delta?.content;
+          if (chunk) yield chunk;
+        } catch {
+          // Ignore incomplete JSON chunks
+        }
+      }
+    }
+  }
+
+  private async *streamClaude(
+    provider: ProviderConfig,
+    model: string,
+    messages: { role: string; content: string }[],
+  ): AsyncGenerator<string, void, unknown> {
+    const base = (provider.baseUrl || 'https://api.anthropic.com/v1').replace(/\/+$/, '');
+    const url = `${base}/messages`;
+
+    const systemMessage = messages.find((m) => m.role.toUpperCase() === 'SYSTEM')?.content;
+    const conversationMessages = messages
+      .filter((m) => m.role.toUpperCase() !== 'SYSTEM')
+      .map((m) => ({
+        role: m.role.toLowerCase() === 'assistant' ? 'assistant' : 'user',
+        content: m.content,
+      }));
+
+    const bodyPayload: any = {
+      model,
+      max_tokens: 4096,
+      messages: conversationMessages,
+      stream: true,
+    };
+    if (systemMessage) {
+      bodyPayload.system = systemMessage;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': provider.apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(bodyPayload),
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!response.ok) {
+      const err = await response.text().catch(() => '');
+      throw new InternalServerErrorException(
+        `Claude stream error (${response.status}): ${err.slice(0, 300)}`,
+      );
+    }
+
+    if (!response.body) return;
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.slice(5).trim();
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+            yield parsed.delta.text;
+          }
+        } catch {
+          // Ignore incomplete JSON chunks
+        }
+      }
+    }
+  }
+
+  private async *streamGemini(
+    provider: ProviderConfig,
+    model: string,
+    messages: { role: string; content: string }[],
+  ): AsyncGenerator<string, void, unknown> {
+    const base = (
+      provider.baseUrl || 'https://generativelanguage.googleapis.com/v1beta'
+    ).replace(/\/+$/, '');
+    const url = `${base}/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(provider.apiKey)}`;
+
+    const contents = messages
+      .filter((m) => m.role.toUpperCase() !== 'SYSTEM')
+      .map((m) => ({
+        role: m.role.toLowerCase() === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }],
+      }));
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ contents }),
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!response.ok) {
+      const err = await response.text().catch(() => '');
+      throw new InternalServerErrorException(
+        `Gemini stream error (${response.status}): ${err.slice(0, 300)}`,
+      );
+    }
+
+    if (!response.body) return;
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.slice(5).trim();
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          const chunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (chunk) yield chunk;
+        } catch {
+          // Ignore non-json or incomplete SSE chunks
+        }
+      }
+    }
+  }
+
+  /**
    * Main sendPrompt handler:
    * 1. Resolves/creates conversation
    * 2. Resolves provider & model
@@ -353,6 +580,103 @@ export class ChatService {
         model: selectedModel,
       },
     };
+  }
+
+  /**
+   * Streaming prompt handler:
+   * 1. Resolves/creates conversation
+   * 2. Saves User message
+   * 3. Streams tokens from LLM and yields StreamChunkEvent
+   * 4. Accumulates response and persists Assistant message atomically upon completion
+   */
+  async *sendPromptStream(
+    userId: string,
+    dto: SendPromptDto,
+  ): AsyncGenerator<StreamChunkEvent, void, unknown> {
+    let conversationId = dto.conversationId;
+
+    if (conversationId) {
+      const existing = await this.prisma.conversation.findUnique({
+        where: { id: conversationId },
+        select: { userId: true },
+      });
+      if (!existing || existing.userId !== userId) {
+        throw new NotFoundException('Conversation not found');
+      }
+    } else {
+      const title =
+        dto.prompt.trim().slice(0, 40) + (dto.prompt.length > 40 ? '...' : '');
+      const newConv = await this.prisma.conversation.create({
+        data: {
+          userId,
+          title,
+        },
+      });
+      conversationId = newConv.id;
+    }
+
+    // Resolve provider & model
+    const provider = await this.resolveProvider(dto.providerId);
+    const selectedModel = dto.model || provider.defaultModel;
+
+    // Load history for context
+    const history = await this.prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+      take: 20,
+    });
+
+    const llmMessages = [
+      ...history.map((h) => ({ role: h.role, content: h.content })),
+      { role: Role.USER, content: dto.prompt },
+    ];
+
+    // Save user message in DB
+    await this.prisma.message.create({
+      data: {
+        conversationId,
+        role: MessageRole.USER,
+        content: dto.prompt,
+      },
+    });
+
+    let accumulatedText = '';
+
+    try {
+      for await (const chunk of this.streamLlm(provider, selectedModel, llmMessages)) {
+        accumulatedText += chunk;
+        yield {
+          conversationId,
+          chunk,
+          done: false,
+        };
+      }
+    } finally {
+      // Save assistant message and update conversation updatedAt atomically
+      if (accumulatedText.length > 0) {
+        await this.prisma.$transaction([
+          this.prisma.message.create({
+            data: {
+              conversationId,
+              role: MessageRole.ASSISTANT,
+              content: accumulatedText,
+              providerType: provider.type,
+              modelName: selectedModel,
+            },
+          }),
+          this.prisma.conversation.update({
+            where: { id: conversationId },
+            data: { updatedAt: new Date() },
+          }),
+        ]);
+      }
+
+      yield {
+        conversationId,
+        chunk: '',
+        done: true,
+      };
+    }
   }
 
   /**

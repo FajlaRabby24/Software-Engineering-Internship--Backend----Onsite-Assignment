@@ -5,10 +5,13 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  MessageEvent,
   Param,
   Post,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { ChatService } from './chat.service.js';
 import { SendPromptDto } from './dto/send-prompt.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
@@ -33,6 +36,32 @@ export class ChatController {
     @Body() dto: SendPromptDto,
   ): Promise<ChatResponse> {
     return this.chatService.sendPrompt(userId, dto);
+  }
+
+  @Post('stream')
+  @UseGuards(UsageLimitGuard)
+  @Sse()
+  streamPrompt(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: SendPromptDto,
+  ): Observable<MessageEvent> {
+    return new Observable((subscriber) => {
+      (async () => {
+        try {
+          for await (const chunkEvent of this.chatService.sendPromptStream(userId, dto)) {
+            subscriber.next({
+              data: chunkEvent,
+            });
+            if (chunkEvent.done) {
+              subscriber.complete();
+              break;
+            }
+          }
+        } catch (err) {
+          subscriber.error(err);
+        }
+      })();
+    });
   }
 
   @Get('conversations')
