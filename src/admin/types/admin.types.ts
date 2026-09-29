@@ -182,7 +182,50 @@ export interface AdminRequestLogsResponse {
   logs: RequestActivityLogItem[];
 }
 
+export interface MemoryUsageStats {
+  heapUsedMB: number;
+  heapTotalMB: number;
+  rssMB: number;
+  externalMB: number;
+}
 
+export interface DatabaseHealthStats {
+  status: 'UP' | 'DOWN';
+  latencyMs: number;
+  message?: string;
+}
 
+export interface ProviderHealthItem {
+  id: string;
+  name: string;
+  type: string;
+  isActive: boolean;
+  isDefault: boolean;
+  status: 'healthy' | 'unhealthy' | 'disabled';
+  latencyMs?: number;
+  message: string;
+}
 
+export interface SystemHealthResponse {
+  success: boolean;
+  status: 'HEALTHY' | 'DEGRADED' | 'DOWN';
+  timestamp: string;
+  uptime: {
+    seconds: number;
+    formatted: string;
+  };
+  process: {
+    nodeVersion: string;
+    pid: number;
+    platform: string;
+  };
+  memory: MemoryUsageStats;
+  database: DatabaseHealthStats;
+  providers: {
+    total: number;
+    healthy: number;
+    unhealthy: number;
+    items: ProviderHealthItem[];
+  };
+}
 

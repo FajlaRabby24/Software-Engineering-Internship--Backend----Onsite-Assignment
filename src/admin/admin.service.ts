@@ -6,6 +6,7 @@ import { GetUsageAnalyticsDto } from './dto/get-usage-analytics.dto.js';
 import { GetRequestLogsFilterDto } from './dto/get-request-logs-filter.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
+import { AiProvidersService } from '../ai-providers/ai-providers.service.js';
 import type {
   AdminRequestLogsResponse,
   AdminSubscriptionItem,
@@ -16,7 +17,9 @@ import type {
   DashboardStatsResponse,
   ModelBreakdownItem,
   ProviderBreakdownItem,
+  ProviderHealthItem,
   RequestActivityLogItem,
+  SystemHealthResponse,
   UsageAnalyticsResponse,
   UserStatusResponse,
 } from './types/admin.types.js';
@@ -29,7 +32,10 @@ import {
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiProvidersService: AiProvidersService,
+  ) {}
 
   /**
    * Aggregates platform statistics for the admin dashboard.
@@ -737,7 +743,148 @@ export class AdminService {
       logs,
     };
   }
+
+  /**
+   * System health check:
+   * 1. Process memory & uptime
+   * 2. Database connectivity & latency probe
+   * 3. AI Providers status & connectivity check
+   * 4. Consolidated overall health status (HEALTHY, DEGRADED, DOWN)
+   */
+  async getSystemHealth(): Promise<SystemHealthResponse> {
+    const uptimeSeconds = Math.floor(process.uptime());
+    const days = Math.floor(uptimeSeconds / (3600 * 24));
+    const hours = Math.floor((uptimeSeconds % (3600 * 24)) / 3600);
+    const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+    const seconds = uptimeSeconds % 60;
+    const formattedUptime = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+    const mem = process.memoryUsage();
+    const memoryStats = {
+      heapUsedMB: Number((mem.heapUsed / 1024 / 1024).toFixed(2)),
+      heapTotalMB: Number((mem.heapTotal / 1024 / 1024).toFixed(2)),
+      rssMB: Number((mem.rss / 1024 / 1024).toFixed(2)),
+      externalMB: Number((mem.external / 1024 / 1024).toFixed(2)),
+    };
+
+    // 1. Database Health Check
+    let dbStatus: 'UP' | 'DOWN' = 'UP';
+    let dbLatencyMs = 0;
+    let dbMessage = 'Database connection is healthy';
+
+    const dbStart = Date.now();
+    try {
+      // Fast lightweight database probe
+      await this.prisma.$queryRaw`SELECT 1`;
+      dbLatencyMs = Date.now() - dbStart;
+    } catch (err: any) {
+      dbStatus = 'DOWN';
+      dbLatencyMs = Date.now() - dbStart;
+      dbMessage = err?.message || 'Database query failed';
+    }
+
+    // 2. AI Providers Health Check
+    const providers = await this.prisma.aIProvider.findMany({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        isActive: true,
+        isDefault: true,
+      },
+    });
+
+    const providerHealthResults: ProviderHealthItem[] = await Promise.all(
+      providers.map(async (p) => {
+        if (!p.isActive) {
+          return {
+            id: p.id,
+            name: p.name,
+            type: p.type,
+            isActive: false,
+            isDefault: p.isDefault,
+            status: 'disabled' as const,
+            message: 'Provider is disabled',
+          };
+        }
+
+        try {
+          const health = await this.aiProvidersService.checkHealth(p.id);
+          return {
+            id: p.id,
+            name: p.name,
+            type: p.type,
+            isActive: true,
+            isDefault: p.isDefault,
+            status: health.status === 'healthy' ? ('healthy' as const) : ('unhealthy' as const),
+            latencyMs: health.latencyMs,
+            message: health.message,
+          };
+        } catch (err: any) {
+          return {
+            id: p.id,
+            name: p.name,
+            type: p.type,
+            isActive: true,
+            isDefault: p.isDefault,
+            status: 'unhealthy' as const,
+            message: err?.message || 'Failed to check provider health',
+          };
+        }
+      }),
+    );
+
+    const activeProviders = providerHealthResults.filter((p) => p.isActive);
+    const healthyCount = providerHealthResults.filter(
+      (p) => p.status === 'healthy',
+    ).length;
+    const unhealthyCount = providerHealthResults.filter(
+      (p) => p.status === 'unhealthy',
+    ).length;
+
+    // Overall Status
+    let systemStatus: 'HEALTHY' | 'DEGRADED' | 'DOWN' = 'HEALTHY';
+
+    if (dbStatus === 'DOWN') {
+      systemStatus = 'DOWN';
+    } else if (
+      activeProviders.length > 0 &&
+      healthyCount === 0
+    ) {
+      systemStatus = 'DEGRADED';
+    } else if (unhealthyCount > 0) {
+      systemStatus = 'DEGRADED';
+    }
+
+    return {
+      success: true,
+      status: systemStatus,
+      timestamp: new Date().toISOString(),
+      uptime: {
+        seconds: uptimeSeconds,
+        formatted: formattedUptime,
+      },
+      process: {
+        nodeVersion: process.version,
+        pid: process.pid,
+        platform: process.platform,
+      },
+      memory: memoryStats,
+      database: {
+        status: dbStatus,
+        latencyMs: dbLatencyMs,
+        message: dbMessage,
+      },
+      providers: {
+        total: providerHealthResults.length,
+        healthy: healthyCount,
+        unhealthy: unhealthyCount,
+        items: providerHealthResults,
+      },
+    };
+  }
 }
+
 
 
 

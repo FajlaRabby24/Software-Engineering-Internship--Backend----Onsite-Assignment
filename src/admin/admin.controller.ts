@@ -27,6 +27,7 @@ import type {
   AdminSubscriptionsListResponse,
   AdminUsersListResponse,
   DashboardStatsResponse,
+  SystemHealthResponse,
   UsageAnalyticsResponse,
   UserStatusResponse,
 } from './types/admin.types.js';
@@ -104,7 +105,14 @@ export class AdminController {
   ): Promise<AdminRequestLogsResponse> {
     return this.adminService.getRequestLogs(filterDto);
   }
+
+  @Get('system/health')
+  @HttpCode(HttpStatus.OK)
+  async getSystemHealth(): Promise<SystemHealthResponse> {
+    return this.adminService.getSystemHealth();
+  }
 }
+
 
 
 
