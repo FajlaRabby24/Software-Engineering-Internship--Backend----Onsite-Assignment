@@ -1,34 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from './admin.service.js';
-import { CreateAdminDto } from './dto/create-admin.dto.js';
-import { UpdateAdminDto } from './dto/update-admin.dto.js';
+import { AuthGuard } from '../auth/guards/auth.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
+import { Role } from '../generated/client/enums.js';
+import type { DashboardStatsResponse } from './types/admin.types.js';
 
 @Controller('admin')
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.ADMIN)
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService
+  ) {}
 
-  @Post()
-  create(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.create(createAdminDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.adminService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+  @Get('dashboard/stats')
+  @HttpCode(HttpStatus.OK)
+  async getDashboardStats(): Promise<DashboardStatsResponse> {
+    return this.adminService.getDashboardStats();
   }
 }
