@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AiProvidersModule } from './ai-providers/ai-providers.module.js';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
+import { ChatModule } from './chat/chat.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -22,6 +23,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     UsersModule,
     AiProvidersModule,
     SubscriptionsModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
