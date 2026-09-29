@@ -19,3 +19,9 @@ enum SubscriptionStatus {
   CANCELED
   EXPIRED
 }
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}

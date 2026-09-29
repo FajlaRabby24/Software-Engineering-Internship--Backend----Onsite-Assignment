@@ -11,9 +11,11 @@ model User {
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  
   sessions     Session[]
-  subscription Subscription?
-  usageRecord  UsageRecord?
+  subscription  Subscription?
+  usageRecord   UsageRecord?
+  conversations Conversation[]
 
   @@index([email])
   @@map("users")
