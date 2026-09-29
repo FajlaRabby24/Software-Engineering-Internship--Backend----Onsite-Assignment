@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
 import type {
   AdminUsersListResponse,
   DashboardStatsResponse,
+  UserStatusResponse,
 } from './types/admin.types.js';
 import {
   Role,
@@ -204,6 +205,50 @@ export class AdminService {
         totalPages,
       },
       users,
+    };
+  }
+
+  /**
+   * Toggles active/inactive status of a user.
+   * Prevents admin from accidentally deactivating their own account.
+   */
+  async toggleUserStatus(
+    targetUserId: string,
+    currentAdminId: string,
+  ): Promise<UserStatusResponse> {
+    if (targetUserId === currentAdminId) {
+      throw new BadRequestException('You cannot deactivate your own account');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: {
+        isActive: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const nextState = !user.isActive;
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: { isActive: nextState },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+      },
+    });
+
+    return {
+      success: true,
+      message: `User ${nextState ? 'activated' : 'deactivated'} successfully`,
+      user: updated,
     };
   }
 }

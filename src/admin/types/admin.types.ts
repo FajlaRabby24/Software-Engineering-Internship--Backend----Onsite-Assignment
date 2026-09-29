@@ -60,3 +60,15 @@ export interface AdminUsersListResponse {
   };
   users: AdminUserItem[];
 }
+
+export interface UserStatusResponse {
+  success: boolean;
+  message: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    isActive: boolean;
+  };
+}
