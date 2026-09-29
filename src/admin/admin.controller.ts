@@ -13,6 +13,7 @@ import { AdminService } from './admin.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
 import { GetSubscriptionsFilterDto } from './dto/get-subscriptions-filter.dto.js';
 import { GetUsageAnalyticsDto } from './dto/get-usage-analytics.dto.js';
+import { GetRequestLogsFilterDto } from './dto/get-request-logs-filter.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
@@ -21,6 +22,7 @@ import { Roles } from '../auth/decorators/roles.decorator.js';
 import { CurrentUser } from '../auth/decorators/auth.decorators.js';
 import { Role } from '../generated/client/enums.js';
 import type {
+  AdminRequestLogsResponse,
   AdminSubscriptionResponse,
   AdminSubscriptionsListResponse,
   AdminUsersListResponse,
@@ -94,6 +96,15 @@ export class AdminController {
   ): Promise<UsageAnalyticsResponse> {
     return this.adminService.getUsageAnalytics(queryDto);
   }
+
+  @Get('logs/requests')
+  @HttpCode(HttpStatus.OK)
+  async getRequestLogs(
+    @Query() filterDto: GetRequestLogsFilterDto,
+  ): Promise<AdminRequestLogsResponse> {
+    return this.adminService.getRequestLogs(filterDto);
+  }
 }
+
 
 

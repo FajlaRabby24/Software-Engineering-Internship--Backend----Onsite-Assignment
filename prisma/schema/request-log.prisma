@@ -1,0 +1,21 @@
+model RequestLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  method       String   // GET, POST, PATCH, DELETE, etc.
+  endpoint     String   // e.g. /chat, /web-search, /auth/login
+  statusCode   Int      // 200, 201, 400, 401, 500, etc.
+  durationMs   Int      // Execution duration in milliseconds
+  ip           String?
+  userAgent    String?
+  errorMessage String?
+
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([endpoint])
+  @@index([statusCode])
+  @@map("request_logs")
+}

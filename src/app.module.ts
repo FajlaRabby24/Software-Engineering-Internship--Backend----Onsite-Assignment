@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -11,6 +12,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { WebSearchModule } from './web-search/web-search.module.js';
 import { AdminModule } from './admin/admin.module.js';
+import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -30,6 +32,13 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestLoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
+

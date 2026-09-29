@@ -3,9 +3,11 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
 import { GetSubscriptionsFilterDto } from './dto/get-subscriptions-filter.dto.js';
 import { GetUsageAnalyticsDto } from './dto/get-usage-analytics.dto.js';
+import { GetRequestLogsFilterDto } from './dto/get-request-logs-filter.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
 import type {
+  AdminRequestLogsResponse,
   AdminSubscriptionItem,
   AdminSubscriptionResponse,
   AdminSubscriptionsListResponse,
@@ -14,6 +16,7 @@ import type {
   DashboardStatsResponse,
   ModelBreakdownItem,
   ProviderBreakdownItem,
+  RequestActivityLogItem,
   UsageAnalyticsResponse,
   UserStatusResponse,
 } from './types/admin.types.js';
@@ -649,6 +652,92 @@ export class AdminService {
       modelBreakdown,
     };
   }
+
+  /**
+   * Chronological request activity log from dedicated request_logs table.
+   * Supports filtering by status code, HTTP method, endpoint, user ID, and text search.
+   */
+  async getRequestLogs(
+    filterDto: GetRequestLogsFilterDto,
+  ): Promise<AdminRequestLogsResponse> {
+    const page = filterDto.page && filterDto.page > 0 ? filterDto.page : 1;
+    const limit = filterDto.limit && filterDto.limit > 0 ? filterDto.limit : 20;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (filterDto.method) {
+      where.method = filterDto.method.toUpperCase();
+    }
+
+    if (filterDto.endpoint) {
+      where.endpoint = {
+        contains: filterDto.endpoint.trim(),
+        mode: 'insensitive',
+      };
+    }
+
+    if (filterDto.statusCode) {
+      where.statusCode = filterDto.statusCode;
+    }
+
+    if (filterDto.userId) {
+      where.userId = filterDto.userId;
+    }
+
+    if (filterDto.search && filterDto.search.trim()) {
+      const search = filterDto.search.trim();
+      where.OR = [
+        { endpoint: { contains: search, mode: 'insensitive' } },
+        { errorMessage: { contains: search, mode: 'insensitive' } },
+        { user: { email: { contains: search, mode: 'insensitive' } } },
+        { user: { name: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [total, logs] = await Promise.all([
+      this.prisma.requestLog.count({ where }),
+      this.prisma.requestLog.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          userId: true,
+          method: true,
+          endpoint: true,
+          statusCode: true,
+          durationMs: true,
+          ip: true,
+          userAgent: true,
+          errorMessage: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    return {
+      success: true,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+      logs,
+    };
+  }
 }
+
 
 

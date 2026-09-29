@@ -153,5 +153,36 @@ export interface UsageAnalyticsResponse {
   modelBreakdown: ModelBreakdownItem[];
 }
 
+export interface RequestActivityLogItem {
+  id: string;
+  userId: string | null;
+  method: string;
+  endpoint: string;
+  statusCode: number;
+  durationMs: number;
+  ip: string | null;
+  userAgent: string | null;
+  errorMessage: string | null;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+}
+
+export interface AdminRequestLogsResponse {
+  success: boolean;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  logs: RequestActivityLogItem[];
+}
+
+
+
 
 

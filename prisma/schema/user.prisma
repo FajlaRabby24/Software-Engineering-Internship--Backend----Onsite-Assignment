@@ -17,6 +17,7 @@ model User {
   usageRecord   UsageRecord?
   conversations Conversation[]
   searchHistories SearchHistory[]
+  requestLogs  RequestLog[]
 
   @@index([email])
   @@map("users")
