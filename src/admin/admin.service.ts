@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import type {
   AdminUsersListResponse,
   DashboardStatsResponse,
@@ -248,6 +249,47 @@ export class AdminService {
     return {
       success: true,
       message: `User ${nextState ? 'activated' : 'deactivated'} successfully`,
+      user: updated,
+    };
+  }
+
+  /**
+   * Updates user role (USER <-> ADMIN).
+   * Prevents admin from removing their own admin privileges.
+   */
+  async updateUserRole(
+    targetUserId: string,
+    currentAdminId: string,
+    dto: UpdateUserRoleDto,
+  ): Promise<UserStatusResponse> {
+    if (targetUserId === currentAdminId && dto.role !== Role.ADMIN) {
+      throw new BadRequestException('You cannot demote your own admin account');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true, role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: { role: dto.role },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+      },
+    });
+
+    return {
+      success: true,
+      message: `User role successfully updated to ${dto.role}`,
       user: updated,
     };
   }

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { AdminService } from './admin.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
@@ -50,5 +52,15 @@ export class AdminController {
     @CurrentUser('sub') currentAdminId: string,
   ): Promise<UserStatusResponse> {
     return this.adminService.toggleUserStatus(targetUserId, currentAdminId);
+  }
+
+  @Patch('users/:id/role')
+  @HttpCode(HttpStatus.OK)
+  async updateUserRole(
+    @Param('id') targetUserId: string,
+    @CurrentUser('sub') currentAdminId: string,
+    @Body() dto: UpdateUserRoleDto,
+  ): Promise<UserStatusResponse> {
+    return this.adminService.updateUserRole(targetUserId, currentAdminId, dto);
   }
 }
