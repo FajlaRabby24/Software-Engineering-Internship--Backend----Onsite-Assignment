@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { AiProvidersModule } from './ai-providers/ai-providers.module.js';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 import { ChatModule } from './chat/chat.module.js';
+import { WebSearchModule } from './web-search/web-search.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -24,6 +25,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AiProvidersModule,
     SubscriptionsModule,
     ChatModule,
+    WebSearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
