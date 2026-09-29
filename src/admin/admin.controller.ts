@@ -12,6 +12,7 @@ import {
 import { AdminService } from './admin.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
 import { GetSubscriptionsFilterDto } from './dto/get-subscriptions-filter.dto.js';
+import { GetUsageAnalyticsDto } from './dto/get-usage-analytics.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
@@ -24,6 +25,7 @@ import type {
   AdminSubscriptionsListResponse,
   AdminUsersListResponse,
   DashboardStatsResponse,
+  UsageAnalyticsResponse,
   UserStatusResponse,
 } from './types/admin.types.js';
 
@@ -84,5 +86,14 @@ export class AdminController {
   ): Promise<AdminSubscriptionsListResponse> {
     return this.adminService.getSubscriptions(filterDto);
   }
+
+  @Get('analytics/usage')
+  @HttpCode(HttpStatus.OK)
+  async getUsageAnalytics(
+    @Query() queryDto: GetUsageAnalyticsDto,
+  ): Promise<UsageAnalyticsResponse> {
+    return this.adminService.getUsageAnalytics(queryDto);
+  }
 }
+
 

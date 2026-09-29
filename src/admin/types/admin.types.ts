@@ -115,4 +115,43 @@ export interface AdminSubscriptionsListResponse {
   subscriptions: AdminSubscriptionItem[];
 }
 
+export interface DailyTrendItem {
+  date: string; // YYYY-MM-DD
+  messages: number;
+  conversations: number;
+  searches: number;
+  totalRequests: number;
+}
+
+export interface ProviderBreakdownItem {
+  provider: string; // OPENAI, CLAUDE, GEMINI, or UNKNOWN
+  count: number;
+  percentage: number;
+}
+
+export interface ModelBreakdownItem {
+  model: string;
+  provider: string;
+  count: number;
+}
+
+export interface UsageAnalyticsResponse {
+  success: boolean;
+  timeframe: {
+    days: number;
+    startDate: string;
+    endDate: string;
+  };
+  summary: {
+    totalRequests: number;
+    totalMessages: number;
+    totalConversations: number;
+    totalSearches: number;
+  };
+  dailyTrends: DailyTrendItem[];
+  providerBreakdown: ProviderBreakdownItem[];
+  modelBreakdown: ModelBreakdownItem[];
+}
+
+
 

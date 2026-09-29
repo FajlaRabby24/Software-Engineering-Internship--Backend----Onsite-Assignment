@@ -2,18 +2,23 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service.js';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
 import { GetSubscriptionsFilterDto } from './dto/get-subscriptions-filter.dto.js';
+import { GetUsageAnalyticsDto } from './dto/get-usage-analytics.dto.js';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
 import { AdminUpdateSubscriptionDto } from './dto/admin-update-subscription.dto.js';
-import { SubscriptionsService } from '../subscriptions/subscriptions.service.js';
 import type {
   AdminSubscriptionItem,
   AdminSubscriptionResponse,
   AdminSubscriptionsListResponse,
   AdminUsersListResponse,
+  DailyTrendItem,
   DashboardStatsResponse,
+  ModelBreakdownItem,
+  ProviderBreakdownItem,
+  UsageAnalyticsResponse,
   UserStatusResponse,
 } from './types/admin.types.js';
 import {
+  MessageRole,
   Role,
   SubscriptionPlan,
   SubscriptionStatus,
@@ -470,5 +475,180 @@ export class AdminService {
       subscriptions: items,
     };
   }
+
+  /**
+   * Analytics: Daily trends & provider/model breakdowns over a timeframe (default 7 days).
+   * Uses pure Prisma queries:
+   * 1. Fetches only lightweight `createdAt` timestamps for messages, conversations, and searches.
+   * 2. Uses Prisma `groupBy` directly for provider & model distributions.
+   */
+  async getUsageAnalytics(
+    queryDto: GetUsageAnalyticsDto,
+  ): Promise<UsageAnalyticsResponse> {
+    const days = queryDto.days && queryDto.days > 0 ? queryDto.days : 7;
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - (days - 1));
+    startDate.setHours(0, 0, 0, 0);
+
+    // Parallel pure Prisma queries
+    const [
+      messages,
+      conversations,
+      searches,
+      providerGroups,
+      modelGroups,
+    ] = await Promise.all([
+      // 1. Fetch only createdAt for messages (lean payload, no large content strings)
+      this.prisma.message.findMany({
+        where: {
+          createdAt: { gte: startDate, lte: endDate },
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+
+      // 2. Fetch only createdAt for conversations
+      this.prisma.conversation.findMany({
+        where: {
+          createdAt: { gte: startDate, lte: endDate },
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+
+      // 3. Fetch only createdAt for search histories
+      this.prisma.searchHistory.findMany({
+        where: {
+          createdAt: { gte: startDate, lte: endDate },
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+
+      // 4. Provider breakdown aggregated by Prisma groupBy
+      this.prisma.message.groupBy({
+        by: ['providerType'],
+        where: {
+          role: MessageRole.ASSISTANT,
+          createdAt: { gte: startDate, lte: endDate },
+        },
+        _count: { id: true },
+      }),
+
+      // 5. Model breakdown aggregated by Prisma groupBy
+      this.prisma.message.groupBy({
+        by: ['providerType', 'modelName'],
+        where: {
+          role: MessageRole.ASSISTANT,
+          modelName: { not: null },
+          createdAt: { gte: startDate, lte: endDate },
+        },
+        _count: { id: true },
+      }),
+    ]);
+
+    // Build day map with 0-filled dates for continuous trend charts
+    const dateMap = new Map<
+      string,
+      { messages: number; conversations: number; searches: number }
+    >();
+
+    for (let i = 0; i < days; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      const dateKey = d.toISOString().slice(0, 10);
+      dateMap.set(dateKey, { messages: 0, conversations: 0, searches: 0 });
+    }
+
+    for (const msg of messages) {
+      const key = msg.createdAt.toISOString().slice(0, 10);
+      const entry = dateMap.get(key);
+      if (entry) {
+        entry.messages++;
+      }
+    }
+
+    for (const conv of conversations) {
+      const key = conv.createdAt.toISOString().slice(0, 10);
+      const entry = dateMap.get(key);
+      if (entry) {
+        entry.conversations++;
+      }
+    }
+
+    for (const search of searches) {
+      const key = search.createdAt.toISOString().slice(0, 10);
+      const entry = dateMap.get(key);
+      if (entry) {
+        entry.searches++;
+      }
+    }
+
+    const dailyTrends: DailyTrendItem[] = Array.from(dateMap.entries()).map(
+      ([date, counts]) => ({
+        date,
+        messages: counts.messages,
+        conversations: counts.conversations,
+        searches: counts.searches,
+        totalRequests: counts.messages + counts.searches,
+      }),
+    );
+
+
+    // Calculate provider percentage breakdown
+    let totalAssistantCalls = 0;
+    for (const p of providerGroups) {
+      totalAssistantCalls += p._count.id;
+    }
+
+    const providerBreakdown: ProviderBreakdownItem[] = providerGroups
+      .map((p) => {
+        const count = p._count.id;
+        const percentage =
+          totalAssistantCalls > 0
+            ? Number(((count / totalAssistantCalls) * 100).toFixed(1))
+            : 0;
+
+        return {
+          provider: p.providerType || 'UNKNOWN',
+          count,
+          percentage,
+        };
+      })
+      .sort((a, b) => b.count - a.count);
+
+    // Model breakdown sorted descending
+    const modelBreakdown: ModelBreakdownItem[] = modelGroups
+      .map((m) => ({
+        model: m.modelName || 'Unknown Model',
+        provider: m.providerType || 'UNKNOWN',
+        count: m._count.id,
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      success: true,
+      timeframe: {
+        days,
+        startDate: startDate.toISOString().slice(0, 10),
+        endDate: endDate.toISOString().slice(0, 10),
+      },
+      summary: {
+        totalRequests: messages.length + searches.length,
+        totalMessages: messages.length,
+        totalConversations: conversations.length,
+        totalSearches: searches.length,
+      },
+      dailyTrends,
+      providerBreakdown,
+      modelBreakdown,
+    };
+  }
 }
+
 
