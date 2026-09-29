@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import type { DashboardStatsResponse } from './types/admin.types.js';
+import { GetUsersFilterDto } from './dto/get-users-filter.dto.js';
+import type {
+  AdminUsersListResponse,
+  DashboardStatsResponse,
+} from './types/admin.types.js';
 import {
   Role,
   SubscriptionPlan,
@@ -134,6 +138,72 @@ export class AdminService {
             }
           : null,
       },
+    };
+  }
+
+  /**
+   * Lists users with pagination, email/name search, subscription info, and usage counts.
+   */
+  async getUsers(filterDto: GetUsersFilterDto): Promise<AdminUsersListResponse> {
+    const page = filterDto.page && filterDto.page > 0 ? filterDto.page : 1;
+    const limit = filterDto.limit && filterDto.limit > 0 ? filterDto.limit : 10;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (filterDto.search && filterDto.search.trim()) {
+      const search = filterDto.search.trim();
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [total, users] = await Promise.all([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          isActive: true,
+          isEmailVerified: true,
+          phoneNumber: true,
+          avatarUrl: true,
+          createdAt: true,
+          subscription: {
+            select: {
+              plan: true,
+              status: true,
+              endDate: true,
+            },
+          },
+          _count: {
+            select: {
+              conversations: true,
+              searchHistories: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    return {
+      success: true,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+      users,
     };
   }
 }

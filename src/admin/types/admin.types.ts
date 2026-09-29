@@ -28,3 +28,35 @@ export interface DashboardStatsResponse {
     } | null;
   };
 }
+
+export interface AdminUserItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  phoneNumber: string | null;
+  avatarUrl: string | null;
+  createdAt: Date;
+  subscription: {
+    plan: string;
+    status: string;
+    endDate: Date | null;
+  } | null;
+  _count: {
+    conversations: number;
+    searchHistories: number;
+  };
+}
+
+export interface AdminUsersListResponse {
+  success: boolean;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  users: AdminUserItem[];
+}
