@@ -1,34 +1,63 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ChatService } from './chat.service.js';
-import { CreateChatDto } from './dto/create-chat.dto.js';
-import { UpdateChatDto } from './dto/update-chat.dto.js';
+import { SendPromptDto } from './dto/send-prompt.dto.js';
+import { AuthGuard } from '../auth/guards/auth.guard.js';
+import { UsageLimitGuard } from '../subscriptions/guards/usage-limit.guard.js';
+import { CurrentUser } from '../auth/decorators/auth.decorators.js';
+import type {
+  ChatResponse,
+  ConversationDetailResponse,
+  ConversationListResponse,
+} from './types/chat.types.js';
 
 @Controller('chat')
+@UseGuards(AuthGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post()
-  create(@Body() createChatDto: CreateChatDto) {
-    return this.chatService.create(createChatDto);
+  @UseGuards(UsageLimitGuard)
+  @HttpCode(HttpStatus.OK)
+  async sendPrompt(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: SendPromptDto,
+  ): Promise<ChatResponse> {
+    return this.chatService.sendPrompt(userId, dto);
   }
 
-  @Get()
-  findAll() {
-    return this.chatService.findAll();
+  @Get('conversations')
+  @HttpCode(HttpStatus.OK)
+  async getConversations(
+    @CurrentUser('sub') userId: string,
+  ): Promise<ConversationListResponse> {
+    return this.chatService.getConversations(userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatService.findOne(+id);
+  @Get('conversations/:id/messages')
+  @HttpCode(HttpStatus.OK)
+  async getConversationMessages(
+    @CurrentUser('sub') userId: string,
+    @Param('id') conversationId: string,
+  ): Promise<ConversationDetailResponse> {
+    return this.chatService.getConversationMessages(userId, conversationId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(+id, updateChatDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatService.remove(+id);
+  @Delete('conversations/:id')
+  @HttpCode(HttpStatus.OK)
+  async deleteConversation(
+    @CurrentUser('sub') userId: string,
+    @Param('id') conversationId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.chatService.deleteConversation(userId, conversationId);
   }
 }

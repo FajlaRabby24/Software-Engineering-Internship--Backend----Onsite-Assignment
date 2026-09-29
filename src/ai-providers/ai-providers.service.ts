@@ -20,14 +20,6 @@ export class AiProvidersService {
     // Encrypt the API key securely with AES-256-GCM
     const encryptedApiKey = encrypt(createAIProviderDto.apiKey);
 
-    // If marked as default, unset any existing default provider
-    if (createAIProviderDto.isDefault) {
-      await this.prisma.aIProvider.updateMany({
-        where: { isDefault: true },
-        data: { isDefault: false },
-      });
-    }
-
     // If this is the very first provider, make it default automatically
     let isDefault = createAIProviderDto.isDefault ?? false;
     if (!isDefault) {
@@ -37,16 +29,37 @@ export class AiProvidersService {
       }
     }
 
-    const provider = await this.prisma.aIProvider.create({
-      data: {
-        name: createAIProviderDto.name,
-        type: createAIProviderDto.type,
-        apiKey: encryptedApiKey,
-        baseUrl: createAIProviderDto.baseUrl,
-        models: createAIProviderDto.models,
-        isDefault,
-      },
-    });
+    let provider;
+    if (isDefault) {
+      const [, res] = await this.prisma.$transaction([
+        this.prisma.aIProvider.updateMany({
+          where: { isDefault: true },
+          data: { isDefault: false },
+        }),
+        this.prisma.aIProvider.create({
+          data: {
+            name: createAIProviderDto.name,
+            type: createAIProviderDto.type,
+            apiKey: encryptedApiKey,
+            baseUrl: createAIProviderDto.baseUrl,
+            models: createAIProviderDto.models,
+            isDefault: true,
+          },
+        }),
+      ]);
+      provider = res;
+    } else {
+      provider = await this.prisma.aIProvider.create({
+        data: {
+          name: createAIProviderDto.name,
+          type: createAIProviderDto.type,
+          apiKey: encryptedApiKey,
+          baseUrl: createAIProviderDto.baseUrl,
+          models: createAIProviderDto.models,
+          isDefault: false,
+        },
+      });
+    }
 
     return {
       success: true,
@@ -99,23 +112,31 @@ export class AiProvidersService {
       throw new NotFoundException('AI Provider not found');
     }
 
-    if (updateAIProviderDto.isDefault) {
-      await this.prisma.aIProvider.updateMany({
-        where: { isDefault: true, NOT: { id } },
-        data: { isDefault: false },
-      });
-    }
-
-    const data= {...updateAIProviderDto};
+    const data = { ...updateAIProviderDto };
 
     if (updateAIProviderDto.apiKey) {
       data.apiKey = encrypt(updateAIProviderDto.apiKey);
     }
 
-    const updated = await this.prisma.aIProvider.update({
-      where: { id },
-      data,
-    });
+    let updated;
+    if (updateAIProviderDto.isDefault) {
+      const [, res] = await this.prisma.$transaction([
+        this.prisma.aIProvider.updateMany({
+          where: { isDefault: true, NOT: { id } },
+          data: { isDefault: false },
+        }),
+        this.prisma.aIProvider.update({
+          where: { id },
+          data,
+        }),
+      ]);
+      updated = res;
+    } else {
+      updated = await this.prisma.aIProvider.update({
+        where: { id },
+        data,
+      });
+    }
 
     return {
       success: true,
@@ -195,15 +216,16 @@ export class AiProvidersService {
       throw new BadRequestException('Cannot set an inactive AI provider as default');
     }
 
-    await this.prisma.aIProvider.updateMany({
-      where: { isDefault: true, NOT: { id } },
-      data: { isDefault: false },
-    });
-
-    const updated = await this.prisma.aIProvider.update({
-      where: { id },
-      data: { isDefault: true },
-    });
+    const [, updated] = await this.prisma.$transaction([
+      this.prisma.aIProvider.updateMany({
+        where: { isDefault: true, NOT: { id } },
+        data: { isDefault: false },
+      }),
+      this.prisma.aIProvider.update({
+        where: { id },
+        data: { isDefault: true },
+      }),
+    ]);
 
     return {
       success: true,

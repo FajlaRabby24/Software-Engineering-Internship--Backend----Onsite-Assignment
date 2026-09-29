@@ -138,29 +138,29 @@ export class SubscriptionsService {
     // Default 30-day premium billing cycle
     const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    const subscription = await this.prisma.subscription.update({
-      where: { userId },
-      data: {
-        plan: SubscriptionPlan.PREMIUM,
-        status: SubscriptionStatus.ACTIVE,
-        startDate: now,
-        endDate,
-      },
-    });
-
-    // Update usage limit for PREMIUM immediately (1,000 requests)
-    await this.prisma.usageRecord.upsert({
-      where: { userId },
-      create: {
-        userId,
-        requestCount: 0,
-        totalLimit: this.getLimitForPlan(SubscriptionPlan.PREMIUM),
-        resetAt: this.getNextMonthResetDate(),
-      },
-      update: {
-        totalLimit: this.getLimitForPlan(SubscriptionPlan.PREMIUM),
-      },
-    });
+    const [subscription] = await this.prisma.$transaction([
+      this.prisma.subscription.update({
+        where: { userId },
+        data: {
+          plan: SubscriptionPlan.PREMIUM,
+          status: SubscriptionStatus.ACTIVE,
+          startDate: now,
+          endDate,
+        },
+      }),
+      this.prisma.usageRecord.upsert({
+        where: { userId },
+        create: {
+          userId,
+          requestCount: 0,
+          totalLimit: this.getLimitForPlan(SubscriptionPlan.PREMIUM),
+          resetAt: this.getNextMonthResetDate(),
+        },
+        update: {
+          totalLimit: this.getLimitForPlan(SubscriptionPlan.PREMIUM),
+        },
+      }),
+    ]);
 
     return {
       success: true,
@@ -188,29 +188,29 @@ export class SubscriptionsService {
 
     const now = new Date();
 
-    const subscription = await this.prisma.subscription.update({
-      where: { userId },
-      data: {
-        plan: SubscriptionPlan.FREE,
-        status: SubscriptionStatus.ACTIVE,
-        startDate: now,
-        endDate: null, // Lifetime free
-      },
-    });
-
-    // Update usage limit to FREE (50 requests)
-    await this.prisma.usageRecord.upsert({
-      where: { userId },
-      create: {
-        userId,
-        requestCount: 0,
-        totalLimit: this.getLimitForPlan(SubscriptionPlan.FREE),
-        resetAt: this.getNextMonthResetDate(),
-      },
-      update: {
-        totalLimit: this.getLimitForPlan(SubscriptionPlan.FREE),
-      },
-    });
+    const [subscription] = await this.prisma.$transaction([
+      this.prisma.subscription.update({
+        where: { userId },
+        data: {
+          plan: SubscriptionPlan.FREE,
+          status: SubscriptionStatus.ACTIVE,
+          startDate: now,
+          endDate: null, // Lifetime free
+        },
+      }),
+      this.prisma.usageRecord.upsert({
+        where: { userId },
+        create: {
+          userId,
+          requestCount: 0,
+          totalLimit: this.getLimitForPlan(SubscriptionPlan.FREE),
+          resetAt: this.getNextMonthResetDate(),
+        },
+        update: {
+          totalLimit: this.getLimitForPlan(SubscriptionPlan.FREE),
+        },
+      }),
+    ]);
 
     return {
       success: true,
