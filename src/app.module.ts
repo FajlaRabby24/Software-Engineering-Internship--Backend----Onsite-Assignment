@@ -10,6 +10,7 @@ import { AiProvidersModule } from './ai-providers/ai-providers.module.js';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { WebSearchModule } from './web-search/web-search.module.js';
+import { AdminModule } from './admin/admin.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -26,6 +27,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     SubscriptionsModule,
     ChatModule,
     WebSearchModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
