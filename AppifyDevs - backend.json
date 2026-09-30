@@ -1,0 +1,1339 @@
+{
+  "v": 12,
+  "id": "coll_mukp8xy4_2f629b64-1412-438a-aa26-aaba5d07e780",
+  "name": "AppifyDevs - backend",
+  "folders": [
+    {
+      "v": 12,
+      "id": "coll_mukp91eu_f9af6c7e-ebe4-4152-812e-a2ad24edbcca",
+      "name": "auth",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "75018ed6-0e00-4dc2-abcd-79584ce1a3b3",
+          "name": "register",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/auth/register",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Super Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"AdminPassword123!\",\n  \"role\": \"ADMIN\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "f4723392-a3a0-4f4a-aec4-1eb0a8d4d02b",
+          "name": "login",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/auth/login",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  // \"email\": \"jane@example.com\",\n  // \"password\": \"NewStrongPassword456!\"\n  // admin\n  \"email\": \"admin@example.com\",\n  \"password\": \"AdminPassword123!\",\n}\n\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "f275d82e-0a6d-4217-a935-3fba7a767d0e",
+          "name": "logout (current session)",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/auth/logout",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTM2NjhmZi1lZGI2LTQxNDEtYWFhMy05MmU0YmFkN2MxMjEiLCJpYXQiOjE3OTA1ODc1NDQsImV4cCI6MTc5MTE5MjM0NH0.2OHYKxJrIbaHH20AR1UgjpN4VupXU6Dlr1iA6BFdARM",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJpYXQiOjE3OTA3NjY2MjcsImV4cCI6MTc5MTM3MTQyN30.6666Znc4FxMMw6Rk6nA_x0oioT2rZNd5sNHyJ4ssVnw\"  \n}"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "94b105b8-6d7f-4475-81f6-7e42f7e8f906",
+          "name": "logout all",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/auth/logout-all",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjY3MjksImV4cCI6MTc5MDc2NzYyOX0.4iNSxSpzeECvOmb51Pjw7l93vQjd4zP1srVhw5EKEyU",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "2f3b8fae-b364-4b14-a662-3f057641fc08",
+          "name": "refresh token",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/auth/refresh",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJpYXQiOjE3OTA3ODcxNDMsImV4cCI6MTc5MTM5MTk0M30.LNBBR48cTS1yrGYA0sYa7Vz6usjFlyVZpKtooDjAkYg\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "description": null,
+      "auth": {
+        "authType": "none",
+        "authActive": false
+      },
+      "headers": [],
+      "variables": [],
+      "preRequestScript": "",
+      "testScript": ""
+    },
+    {
+      "v": 12,
+      "id": "coll_mul2uiny_01d83a93-bec4-46b7-9f3f-cfee446bd191",
+      "name": "users",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "47587dec-4786-4028-8690-901040772eef",
+          "name": "update profile",
+          "method": "PATCH",
+          "endpoint": "http://localhost:3000/users/profile",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjY4NzEsImV4cCI6MTc5MDc2Nzc3MX0.17BaogUSpX5ekkOJb--bE94SJXlWYTDF0Dpv1GdH1Ug",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n\"name\": \"Jone Doe (updated)\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "30fbb58c-d6f7-464e-9c58-b787bf294c38",
+          "name": "get profile",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/users/profile",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjY4NzEsImV4cCI6MTc5MDc2Nzc3MX0.17BaogUSpX5ekkOJb--bE94SJXlWYTDF0Dpv1GdH1Ug",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "cba6e4dd-4e26-4774-b1ee-ad586de083d4",
+          "name": "change password",
+          "method": "PATCH",
+          "endpoint": "http://localhost:3000/users/change-password",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjY4NzEsImV4cCI6MTc5MDc2Nzc3MX0.17BaogUSpX5ekkOJb--bE94SJXlWYTDF0Dpv1GdH1Ug",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"oldPassword\": \"Password123!\",\n  \"newPassword\": \"NewStrongPassword456!\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "332e0741-1ace-4449-b742-65fea5ee3983",
+          "name": "delete account",
+          "method": "DELETE",
+          "endpoint": "http://localhost:3000/users/account",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjcwMTQsImV4cCI6MTc5MDc2NzkxNH0.l3m1CxE2HmIINclrlmty-1v636oGOQWiqz55s0Z28SA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"password\": \"NewStrongPassword456!\"\n}\n\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "54bfd1e1-2f00-407b-8c4c-f1f2a8adba79",
+          "name": "get profile - Duplicate",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/users/profile",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjY4NzEsImV4cCI6MTc5MDc2Nzc3MX0.17BaogUSpX5ekkOJb--bE94SJXlWYTDF0Dpv1GdH1Ug",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "description": null,
+      "auth": {
+        "authType": "none",
+        "authActive": false
+      },
+      "headers": [],
+      "variables": [],
+      "preRequestScript": "",
+      "testScript": ""
+    },
+    {
+      "v": 12,
+      "id": "coll_mul4fq7a_f40fcdf7-2eba-4056-8210-311bde69b3c5",
+      "name": "ai providers",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "7308a963-24ed-4c00-b571-5534885b5f43",
+          "name": "create",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/ai-providers",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc2NzU5OCwiZXhwIjoxNzkwNzY4NDk4fQ.iRshaF0h1rvhlZPMikSV8Z6mtbAIHmcCslAnAes_5kk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Google Gemini\",\n  \"type\": \"GEMINI\",\n  \"apiKey\": \"API_KEY\",\n  \"baseUrl\": \"https://api.groq.com/openai/v1\",\n  \"models\": [\"gemini-1.5-flash\", \"gemini-1.5-pro\"],\n  \"isDefault\": false\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "e81f3526-ee0d-495d-9191-11439d824302",
+          "name": "list all providers",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/ai-providers",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4NjA1MCwiZXhwIjoxNzkwNzg2OTUwfQ.jfGMmMjjzlGzJk1gIDtJEYI_oCQ7LenrRv7XlpTnAmE",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Google Gemini\",\n  \"type\": \"GEMINI\",\n  \"apiKey\": \"API_KEY\",\n  \"baseUrl\": \"https://api.groq.com/openai/v1\",\n  \"models\": [\"gemini-1.5-flash\", \"gemini-1.5-pro\"],\n  \"isDefault\": false\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "71423705-560c-4567-b63f-5e2d5bd3a2c8",
+          "name": "get provider by id",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/ai-providers/3b049fe9-d30c-4b81-b449-e5e8849cf170",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc2NzU5OCwiZXhwIjoxNzkwNzY4NDk4fQ.iRshaF0h1rvhlZPMikSV8Z6mtbAIHmcCslAnAes_5kk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Google Gemini\",\n  \"type\": \"GEMINI\",\n  \"apiKey\": \"API_KEY\",\n  \"baseUrl\": \"https://api.groq.com/openai/v1\",\n  \"models\": [\"gemini-1.5-flash\", \"gemini-1.5-pro\"],\n  \"isDefault\": false\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "adc6a2be-cff8-4657-b60c-40476481aeea",
+          "name": "update provider",
+          "method": "PATCH",
+          "endpoint": "http://localhost:3000/ai-providers/0f2d7a96-ff6f-4621-90fb-642e59fcd688",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4NjA1MCwiZXhwIjoxNzkwNzg2OTUwfQ.jfGMmMjjzlGzJk1gIDtJEYI_oCQ7LenrRv7XlpTnAmE",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n    \"models\": [\n  \"openai/gpt-oss-20b\"\n]\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "5b7cde56-b45c-46ce-bec2-b666cb5a32ee",
+          "name": "toggle active/inactive",
+          "method": "PATCH",
+          "endpoint": "http://localhost:3000/ai-providers/3b049fe9-d30c-4b81-b449-e5e8849cf170/toggle",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc2NzU5OCwiZXhwIjoxNzkwNzY4NDk4fQ.iRshaF0h1rvhlZPMikSV8Z6mtbAIHmcCslAnAes_5kk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"OpenAI Primary\",\n  \"models\": [\"gpt-4o\", \"gpt-4o-mini\", \"o1-mini\"]\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "e243b53c-9468-4219-842d-2c9e89c9d16a",
+          "name": "Test provider health",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/ai-providers/3b049fe9-d30c-4b81-b449-e5e8849cf170/health",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4NDgwMiwiZXhwIjoxNzkwNzg1NzAyfQ.Z3LZwRY5tec7Kctvh3xE-VtYs4cmgQCf_DiBoMNnmyU",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Google Gemini\",\n  \"type\": \"GEMINI\",\n  \"apiKey\": \"API_KEY\",\n  \"baseUrl\": \"https://api.groq.com/openai/v1\",\n  \"models\": [\"gemini-1.5-flash\", \"gemini-1.5-pro\"],\n  \"isDefault\": false\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "9ab50b38-38c8-46c2-a934-bb2cf72dd954",
+          "name": "set as default provider",
+          "method": "PATCH",
+          "endpoint": "http://localhost:3000/ai-providers/3b049fe9-d30c-4b81-b449-e5e8849cf170/set-default",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4NDgwMiwiZXhwIjoxNzkwNzg1NzAyfQ.Z3LZwRY5tec7Kctvh3xE-VtYs4cmgQCf_DiBoMNnmyU",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"OpenAI Primary\",\n  \"models\": [\"gpt-4o\", \"gpt-4o-mini\", \"o1-mini\"]\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "96479a3f-e461-4501-ad1c-d7b2d03c4e82",
+          "name": "soft delete provider",
+          "method": "DELETE",
+          "endpoint": "http://localhost:3000/ai-providers/3b049fe9-d30c-4b81-b449-e5e8849cf170",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4NDgwMiwiZXhwIjoxNzkwNzg1NzAyfQ.Z3LZwRY5tec7Kctvh3xE-VtYs4cmgQCf_DiBoMNnmyU",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"OpenAI Primary\",\n  \"models\": [\"gpt-4o\", \"gpt-4o-mini\", \"o1-mini\"]\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "description": null,
+      "auth": {
+        "authType": "none",
+        "authActive": false
+      },
+      "headers": [],
+      "variables": [],
+      "preRequestScript": "",
+      "testScript": ""
+    },
+    {
+      "v": 12,
+      "id": "coll_muo0jh2e_1f3eee8e-be79-405a-91ae-2b9cd8ae790d",
+      "name": "subscriptions",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "d66b4b48-983a-47c0-aa5b-df2470a9f348",
+          "name": "get subscription status",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/subscriptions/status",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjcwMTQsImV4cCI6MTc5MDc2NzkxNH0.l3m1CxE2HmIINclrlmty-1v636oGOQWiqz55s0Z28SA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "85d6c918-27ba-46fa-ae6a-e51ae0169b14",
+          "name": "get remaining usesage quota",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/subscriptions/remaining",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjcwMTQsImV4cCI6MTc5MDc2NzkxNH0.l3m1CxE2HmIINclrlmty-1v636oGOQWiqz55s0Z28SA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "57587c72-cbda-40eb-a11e-dcda290f11b8",
+          "name": "upgrade to premium",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/subscriptions/upgrade",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjcwMTQsImV4cCI6MTc5MDc2NzkxNH0.l3m1CxE2HmIINclrlmty-1v636oGOQWiqz55s0Z28SA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "b3b72535-d420-474c-8527-e5322ca59089",
+          "name": "downgrade to free",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/subscriptions/downgrade",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjcwMTQsImV4cCI6MTc5MDc2NzkxNH0.l3m1CxE2HmIINclrlmty-1v636oGOQWiqz55s0Z28SA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "01761657-4a36-46f1-8891-63a5068f4156",
+          "name": "get subscription status - Duplicate",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/subscriptions/status",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3NjcwMTQsImV4cCI6MTc5MDc2NzkxNH0.l3m1CxE2HmIINclrlmty-1v636oGOQWiqz55s0Z28SA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "description": null,
+      "auth": {
+        "authType": "none",
+        "authActive": false
+      },
+      "headers": [],
+      "variables": [],
+      "preRequestScript": "",
+      "testScript": ""
+    },
+    {
+      "v": 12,
+      "id": "coll_muob8bn6_4a00c81e-9506-4e0e-bf04-b122a711fcfb",
+      "name": "chat",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "51ef4a53-65f1-4959-8bd5-ce40e4553d48",
+          "name": "stream chat",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/chat/stream",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODUyODksImV4cCI6MTc5MDc4NjE4OX0.WaXRIqZaNlCkw2B_jc9OLhGinGSkBR4hNQQ_KTTPW04",
+              "active": true,
+              "description": ""
+            },
+            {
+              "key": "Accept",
+              "value": "text/event-stream",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"prompt\": \"Write a short poem about coding in TypeScript.\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "590c6b61-5553-4c36-8f9c-5d7eca95d624",
+          "name": "chat",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/chat",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODUyODksImV4cCI6MTc5MDc4NjE4OX0.WaXRIqZaNlCkw2B_jc9OLhGinGSkBR4hNQQ_KTTPW04",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"prompt\": \"Can you give me a code snippet illustrating the first benefit?\",\n  \"conversationId\": \"0114dac6-d9d5-44e7-80b9-ffe439f726e6\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "6bb29f05-ae91-43dd-b966-6eb6e142874e",
+          "name": "List User Conversations",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/chat/conversations",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODUyODksImV4cCI6MTc5MDc4NjE4OX0.WaXRIqZaNlCkw2B_jc9OLhGinGSkBR4hNQQ_KTTPW04",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "32fb265f-ab49-4d26-aa88-63311cc85ce7",
+          "name": "Delete Conversation",
+          "method": "DELETE",
+          "endpoint": "http://localhost:3000/chat/conversations/0114dac6-d9d5-44e7-80b9-ffe439f726e6",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODUyODksImV4cCI6MTc5MDc4NjE4OX0.WaXRIqZaNlCkw2B_jc9OLhGinGSkBR4hNQQ_KTTPW04",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "description": null,
+      "auth": {
+        "authType": "none",
+        "authActive": false
+      },
+      "headers": [],
+      "variables": [],
+      "preRequestScript": "",
+      "testScript": ""
+    },
+    {
+      "v": 12,
+      "id": "coll_muobkvmb_c816f883-fd3c-4be3-93c0-bd2073967a39",
+      "name": "AI Web Search",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "99565c1d-329d-4eb1-9afb-635ffc85b257",
+          "name": "Perform Web Search & AI Synthesis",
+          "method": "POST",
+          "endpoint": "http://localhost:3000/web-search",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODYyMjMsImV4cCI6MTc5MDc4NzEyM30.u2dc8EHQK8BXzqltlLY4BTZsfJPrONLQE9cXqlrYxCk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"query\": \"NestJS 11 release date and roadmap\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "294b3555-efa9-4e34-b63b-c1464fa30288",
+          "name": "Get Search History",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/web-search/history?limit=10",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODYyMjMsImV4cCI6MTc5MDc4NzEyM30.u2dc8EHQK8BXzqltlLY4BTZsfJPrONLQE9cXqlrYxCk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"query\": \"NestJS 11 release date and roadmap\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "d92add6d-ce3d-4bef-8423-1c70d9fbbd7b",
+          "name": "Get recent search",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/web-search/recent?limit=5",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODYyMjMsImV4cCI6MTc5MDc4NzEyM30.u2dc8EHQK8BXzqltlLY4BTZsfJPrONLQE9cXqlrYxCk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"query\": \"NestJS 11 release date and roadmap\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "e2b8391e-6790-4ac7-a5a4-69c509e089e5",
+          "name": "Get Search Autocompletion Suggestions",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/web-search/suggestions?q=type",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODYyMjMsImV4cCI6MTc5MDc4NzEyM30.u2dc8EHQK8BXzqltlLY4BTZsfJPrONLQE9cXqlrYxCk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"query\": \"NestJS 11 release date and roadmap\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "c947a626-912a-4997-8fc6-3a5afef6cf54",
+          "name": "Delete Search History Entry",
+          "method": "DELETE",
+          "endpoint": "http://localhost:3000/web-search/history/43176826-2dcc-455c-a6af-0c451ec0a0bc",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODYyMjMsImV4cCI6MTc5MDc4NzEyM30.u2dc8EHQK8BXzqltlLY4BTZsfJPrONLQE9cXqlrYxCk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"query\": \"NestJS 11 release date and roadmap\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "a0343caf-4e08-46f9-a1d2-cdcd29ca2405",
+          "name": "Get recent search - Duplicate",
+          "method": "GET",
+          "endpoint": "http://localhost:3000/web-search/recent?limit=5",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmQ0ZjdjNC1kY2IxLTQwZTktOGM0MS02ODQxYjQwMWEwN2QiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlzQWN0aXZlIjp0cnVlLCJpc0VtYWlsVmVyaWZpZWQiOmZhbHNlLCJwaG9uZU51bWJlciI6IisxMjM0NTY3ODkwIiwiYXZhdGFyVXJsIjpudWxsLCJpYXQiOjE3OTA3ODYyMjMsImV4cCI6MTc5MDc4NzEyM30.u2dc8EHQK8BXzqltlLY4BTZsfJPrONLQE9cXqlrYxCk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"query\": \"NestJS 11 release date and roadmap\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "description": null,
+      "auth": {
+        "authType": "none",
+        "authActive": false
+      },
+      "headers": [],
+      "variables": [],
+      "preRequestScript": "",
+      "testScript": ""
+    },
+    {
+      "v": 12,
+      "id": "coll_muocfqki_8e69d3ee-825e-4a26-825b-04e3e82c78d4",
+      "name": "admin panel",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/dashboard/stats",
+          "name": "Dashboard statistic",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4NzE0MywiZXhwIjoxNzkwNzg4MDQzfQ.kqZpBPHR0pRyUi_JuGzMAWX9nVaHrjefIrRvosK9-L4",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "GET",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "bdcf99b4-1732-4850-8195-0098c5a08bde"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/users?page=1&limit=10&search=jane",
+          "name": "List Users",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4ODA4NywiZXhwIjoxNzkwNzg4OTg3fQ.8dgsoJZSZtEDSMf8jh357DXQBhjg1k7caYw6xkWsvmk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "GET",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "0b24a5e1-1b54-4671-a11c-08779fe9fc64"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/users/9bd4f7c4-dcb1-40e9-8c41-6841b401a07d/status",
+          "name": "Toggle User Status (Activate / Deactivate)",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4ODA4NywiZXhwIjoxNzkwNzg4OTg3fQ.8dgsoJZSZtEDSMf8jh357DXQBhjg1k7caYw6xkWsvmk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "PATCH",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "369d9bcf-fbb7-422b-8a60-042646bed9ef"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/users/9bd4f7c4-dcb1-40e9-8c41-6841b401a07d/role",
+          "name": "Update User Role (USER ⇄ ADMIN)",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4ODA4NywiZXhwIjoxNzkwNzg4OTg3fQ.8dgsoJZSZtEDSMf8jh357DXQBhjg1k7caYw6xkWsvmk",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "PATCH",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"role\": \"USER\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "f5439a18-97e9-4082-baed-f0bef4190417"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/subscriptions?page=1&limit=10&plan=PREMIUM&status=ACTIVE&search=jane",
+          "name": "List Subscriptions (with Filters & Search)",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4OTA3NCwiZXhwIjoxNzkwNzg5OTc0fQ.ZnyUw9WrpeSGiwRJgGhe0Zg2ncSrwtMUepKeQBjFSoA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "GET",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"role\": \"USER\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "83a12dc4-81ca-49e2-bbfd-49af74111ffd"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/subscriptions/9bd4f7c4-dcb1-40e9-8c41-6841b401a07d",
+          "name": "Admin Plan Override",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4OTA3NCwiZXhwIjoxNzkwNzg5OTc0fQ.ZnyUw9WrpeSGiwRJgGhe0Zg2ncSrwtMUepKeQBjFSoA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "PATCH",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"plan\": \"PREMIUM\",\n  \"status\": \"ACTIVE\",\n  \"durationDays\": 60\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "2a1530ea-59b6-4c3a-ab2b-5a46e5a3a940"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/analytics/usage?days=7",
+          "name": "Usage Analytics & Trends",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4OTA3NCwiZXhwIjoxNzkwNzg5OTc0fQ.ZnyUw9WrpeSGiwRJgGhe0Zg2ncSrwtMUepKeQBjFSoA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "GET",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"plan\": \"PREMIUM\",\n  \"status\": \"ACTIVE\",\n  \"durationDays\": 60\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "ed0edf22-4f30-41f7-aa3c-4d01c4e9112c"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/logs/requests?page=1&limit=5&statusCode=200&method=POST",
+          "name": "Chronological Request Activity Logs",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4OTA3NCwiZXhwIjoxNzkwNzg5OTc0fQ.ZnyUw9WrpeSGiwRJgGhe0Zg2ncSrwtMUepKeQBjFSoA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "GET",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"plan\": \"PREMIUM\",\n  \"status\": \"ACTIVE\",\n  \"durationDays\": 60\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "95f4be9c-168d-420b-b758-c0cd971f7ccb"
+        },
+        {
+          "v": "17",
+          "endpoint": "http://localhost:3000/admin/system/health",
+          "name": "System Health Check",
+          "params": [],
+          "headers": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzYwZmE0Zi0yMzY1LTQwMmQtOWZkYS03NWI0M2YwZmZiZDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6IkFETUlOIiwiaXNBY3RpdmUiOnRydWUsImlzRW1haWxWZXJpZmllZCI6ZmFsc2UsInBob25lTnVtYmVyIjpudWxsLCJhdmF0YXJVcmwiOm51bGwsImlhdCI6MTc5MDc4OTA3NCwiZXhwIjoxNzkwNzg5OTc0fQ.ZnyUw9WrpeSGiwRJgGhe0Zg2ncSrwtMUepKeQBjFSoA",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "method": "GET",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "preRequestScript": "",
+          "testScript": "",
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"plan\": \"PREMIUM\",\n  \"status\": \"ACTIVE\",\n  \"durationDays\": 60\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null,
+          "id": "18486283-7640-4261-b6b6-d923834339c3"
+        }
+      ],
+      "description": null,
+      "auth": {
+        "authType": "none",
+        "authActive": false
+      },
+      "headers": [],
+      "variables": [],
+      "preRequestScript": "",
+      "testScript": ""
+    }
+  ],
+  "requests": [],
+  "description": "",
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "preRequestScript": "",
+  "testScript": ""
+}
