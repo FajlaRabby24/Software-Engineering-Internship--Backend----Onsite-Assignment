@@ -136,16 +136,19 @@ export class ChatService {
       content: m.content,
     }));
 
+    const bodyPayload: any = {
+      model,
+      messages: formattedMessages,
+    };
+
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${provider.apiKey}`,
       },
-      body: JSON.stringify({
-        model,
-        messages: formattedMessages,
-      }),
+      body: JSON.stringify(bodyPayload),
       signal: AbortSignal.timeout(60000),
     });
 

@@ -208,9 +208,9 @@ export class WebSearchService {
     }
 
     const systemPrompt =
-      'You are an AI search assistant. Answer the user question based on the provided live web search results. Cite sources using [1], [2], etc. If web results do not contain the answer, provide your best accurate knowledge while noting it.';
+      'You are an assistant. Read the provided reference excerpts and write a clear, informative summary answering the question. Include references like [1], [2] next to facts from each excerpt. Output ONLY plain text or markdown. Never output JSON or function calls.';
 
-    const userPrompt = `Live Web Search Results:\n${sourcesContext}\n\nUser Question:\n${rawQuery}`;
+    const userPrompt = `Reference Excerpts:\n${sourcesContext}\n\nQuestion:\n${rawQuery}`;
 
     const summary = await this.chatService.callLlm(provider, selectedModel, [
       { role: 'SYSTEM', content: systemPrompt },

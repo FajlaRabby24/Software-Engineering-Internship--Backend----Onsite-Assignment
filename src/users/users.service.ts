@@ -132,7 +132,10 @@ export class UsersService {
     deleteAccountDto: DeleteAccountDto,
   ): Promise<DeleteAccountResponse> {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId },select: {
+        isActive: true,
+        password: true
+      }
     });
 
     if (!user || !user.isActive) {
