@@ -1,118 +1,213 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# AI SaaS Platform Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A modern, production-grade AI SaaS backend built with **NestJS 11**, **TypeScript**, **Prisma ORM 7**, and **PostgreSQL (Neon)**. It provides multi-provider LLM chat with Server-Sent Events (SSE) streaming, AI-powered web search, automated monthly subscription quotas, session-based authentication, and a comprehensive admin control panel.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Authentication & Sessions**:
+  - JWT Access Token (15m) + Refresh Token rotation (7d) stored in PostgreSQL.
+  - Multi-device login support with `logout` and `logout-all` session revocation.
+  - Role-Based Access Control (`USER` & `ADMIN`).
+- **User Profile Management**:
+  - Profile retrieval with integrated plan and usage counters.
+  - Update profile details and password changes with session invalidation.
+  - Account deletion with cascading clean-up.
+- **Subscriptions & Quota Enforcement**:
+  - Dual plan architecture: `FREE` (50 requests/month) and `PREMIUM` (1,000 requests/month).
+  - NestJS `UsageLimitGuard` protecting generative AI and web search endpoints.
+  - Upgrade/downgrade endpoints with automatic limit recalculations.
+- **AI Provider Management (Admin)**:
+  - Multi-provider architecture supporting **OpenAI**, **Anthropic Claude**, and **Google Gemini** (plus OpenAI-compatible APIs like **Groq**).
+  - AES-256 encrypted API key storage.
+  - Dynamic fallback model resolution, default provider selection, and live health check ping tests.
+- **Chat Module**:
+  - Multi-turn conversation management with automatic title generation.
+  - Standard JSON response (`POST /chat`) and real-time streaming via Server-Sent Events (`POST /chat/stream`).
+  - Conversation and message history with cascading deletions.
+- **AI Web Search**:
+  - Zero-cost live search scraper using DuckDuckGo HTML endpoint (no paid search API keys needed).
+  - 2-hour database query caching (`SearchCache`) to minimize redundant LLM token costs.
+  - Query autocompletion suggestions and recent history tracking.
+- **Admin Panel & Operations**:
+  - Dashboard overview aggregated via optimized PostgreSQL queries.
+  - User management (search, pagination, activate/deactivate, role promotions).
+  - Subscription management with atomic override transactions.
+  - Usage analytics with continuous timeseries trendlines and model breakdown.
+  - Asynchronous HTTP request activity audit logging (`RequestLog` interceptor).
+  - System health diagnostics (process uptime, memory heap stats, DB latency probe, and live AI provider pings).
+- **Interactive Documentation**:
+  - Complete **Swagger / OpenAPI 3.0** documentation with direct Bearer token testing at `/api/docs`.
 
-## Project setup
+---
 
-```bash
-$ pnpm install
+## Tech Stack
+
+- **Framework**: NestJS 11
+- **Language**: TypeScript (ESM)
+- **Database & ORM**: PostgreSQL with Prisma ORM 7 (`@prisma/adapter-pg`)
+- **Authentication**: JWT (`@nestjs/jwt`), bcryptjs
+- **Security & Validation**: Helmet, class-validator, class-transformer
+- **Documentation**: Swagger / OpenAPI 3.0 (`@nestjs/swagger`, `swagger-ui-express`)
+- **Package Manager**: pnpm
+
+---
+
+## Getting Started
+
+### 1. Prerequisites
+- **Node.js**: `v20+` or `v22+`
+- **pnpm**: `v9+`
+- **PostgreSQL Database** (e.g. Neon, Supabase, or local PostgreSQL)
+
+### 2. Environment Variables
+Create a `.env` file in the root directory:
+
+```env
+# Server
+PORT=3000
+
+# Database (PostgreSQL Connection String)
+DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
+
+# JWT Configuration
+JWT_ACCESS_SECRET="your-super-secret-access-key-min-32-chars"
+JWT_ACCESS_EXPIRES_IN="15m"
+JWT_REFRESH_SECRET="your-super-secret-refresh-key-min-32-chars"
+JWT_REFRESH_EXPIRES_IN="7d"
+
+# AES Encryption Key for AI Provider API Keys (32-character string)
+ENCRYPTION_KEY="your-32-character-encryption-key!"
 ```
 
-## Compile and run the project
-
+### 3. Install Dependencies
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm install
 ```
 
-## Run tests
-
+### 4. Database Setup & Migrations
 ```bash
-# unit tests
-$ pnpm run test
+# Apply migrations to database
+npx prisma migrate dev
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+# Generate Prisma Client
+npx prisma generate
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### 5. Running the Application
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Development (watch mode)
+pnpm run dev
+
+# Production build
+pnpm run build
+pnpm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The server starts by default at `http://localhost:3000`.
 
-## Observability
+---
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+## API Documentation
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+Once the backend is running, visit the interactive Swagger UI:
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+👉 **[http://localhost:3000/api/docs](http://localhost:3000/api/docs)**
 
-This project is already instrumented. Create a free account at [observe.nestjs.com](https://observe.nestjs.com), add an application, and paste the generated app key and secret into the `ObserveModule.forRoot()` call in `src/app.module.ts`.
+You can authorize requests directly in the Swagger UI using the **Authorize** button with a Bearer JWT token.
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+A complete Postman manual testing walkthrough is also available in [POSTMAN_TESTING_GUIDE.md](./POSTMAN_TESTING_GUIDE.md).
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## API Endpoints Summary
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Authentication (`/auth`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/auth/register` | Register a new user account | No |
+| `POST` | `/auth/login` | Login and receive access & refresh tokens | No |
+| `POST` | `/auth/refresh` | Refresh access token using active refresh token | No |
+| `POST` | `/auth/logout` | Revoke current session | No |
+| `POST` | `/auth/logout-all` | Revoke all active sessions across devices | Bearer JWT |
 
-## Support
+### User Profile (`/users`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/users/profile` | Get current user profile, subscription & quota | Bearer JWT |
+| `PATCH` | `/users/profile` | Update profile (name, phone, avatar) | Bearer JWT |
+| `PATCH` | `/users/change-password` | Change account password | Bearer JWT |
+| `DELETE` | `/users/account` | Permanently delete account | Bearer JWT |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Subscriptions & Quotas (`/subscriptions`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/subscriptions/status` | Get active subscription details and expiry | Bearer JWT |
+| `GET` | `/subscriptions/remaining` | Get remaining monthly request quota | Bearer JWT |
+| `POST` | `/subscriptions/upgrade` | Upgrade subscription to PREMIUM (1,000 req/mo) | Bearer JWT |
+| `POST` | `/subscriptions/downgrade` | Downgrade subscription to FREE (50 req/mo) | Bearer JWT |
 
-## Stay in touch
+### AI Providers (`/ai-providers`) — Admin Only
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/ai-providers` | Configure a new AI provider (OpenAI, Claude, Gemini, Groq) | Admin JWT |
+| `GET` | `/ai-providers` | List all configured providers | Admin JWT |
+| `GET` | `/ai-providers/:id` | Get provider details by ID | Admin JWT |
+| `PATCH` | `/ai-providers/:id` | Update provider configuration | Admin JWT |
+| `DELETE` | `/ai-providers/:id` | Soft delete an AI provider | Admin JWT |
+| `PATCH` | `/ai-providers/:id/toggle` | Enable or disable a provider | Admin JWT |
+| `PATCH` | `/ai-providers/:id/set-default`| Set provider as default | Admin JWT |
+| `GET` | `/ai-providers/:id/health` | Ping and check upstream provider connectivity | Admin JWT |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Chat & Streaming (`/chat`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/chat` | Send prompt to AI (Standard JSON response) | Bearer JWT + Quota |
+| `POST` | `/chat/stream` | Stream prompt response via Server-Sent Events (SSE) | Bearer JWT + Quota |
+| `GET` | `/chat/conversations` | List user conversation history | Bearer JWT |
+| `GET` | `/chat/conversations/:id/messages` | Get message history for conversation | Bearer JWT |
+| `DELETE` | `/chat/conversations/:id` | Delete conversation and messages | Bearer JWT |
+
+### AI Web Search (`/web-search`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/web-search` | Live web search scraper + AI synthesis | Bearer JWT + Quota |
+| `GET` | `/web-search/history` | Get user search history | Bearer JWT |
+| `GET` | `/web-search/recent` | Get recent unique search queries | Bearer JWT |
+| `GET` | `/web-search/suggestions` | Search autocompletions for prefix | Bearer JWT |
+| `DELETE` | `/web-search/history/:id` | Delete search history entry | Bearer JWT |
+
+### Admin Panel (`/admin`) — Admin Only
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/admin/dashboard/stats` | Aggregated platform dashboard metrics | Admin JWT |
+| `GET` | `/admin/users` | List users with pagination and search | Admin JWT |
+| `PATCH` | `/admin/users/:id/status` | Activate or deactivate user | Admin JWT |
+| `PATCH` | `/admin/users/:id/role` | Promote/demote user role (USER ⇄ ADMIN) | Admin JWT |
+| `GET` | `/admin/subscriptions` | List subscriptions with filters and search | Admin JWT |
+| `PATCH` | `/admin/subscriptions/:userId` | Manual override of user subscription plan | Admin JWT |
+| `GET` | `/admin/analytics/usage` | Daily trendline metrics and provider breakdown | Admin JWT |
+| `GET` | `/admin/logs/requests` | Chronological HTTP request audit logs | Admin JWT |
+| `GET` | `/admin/system/health` | Diagnostic health (memory, uptime, DB, AI pings) | Admin JWT |
+
+---
+
+## Testing
+
+```bash
+# Run unit tests
+pnpm run test
+
+# Run e2e tests
+pnpm run test:e2e
+
+# Run test coverage
+pnpm run test:cov
+```
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED — Private and proprietary.
