@@ -58,10 +58,21 @@ A modern, production-grade AI SaaS backend built with **NestJS 11**, **TypeScrip
 
 ### 1. Prerequisites
 - **Node.js**: `v20+` or `v22+`
-- **pnpm**: `v9+`
+- **pnpm**: `v9+` (or `npm i -g pnpm`)
 - **PostgreSQL Database** (e.g. Neon, Supabase, or local PostgreSQL)
 
-### 2. Environment Variables
+### 2. Clone the Repository
+```bash
+git clone https://github.com/FajlaRabby24/nestjs-backend-assignment.git
+cd nestjs-backend-assignment
+```
+
+### 3. Install Dependencies
+```bash
+pnpm install
+```
+
+### 4. Environment Variables
 Create a `.env` file in the root directory:
 
 ```env
@@ -81,12 +92,7 @@ JWT_REFRESH_EXPIRES_IN="7d"
 ENCRYPTION_KEY="your-32-character-encryption-key!"
 ```
 
-### 3. Install Dependencies
-```bash
-pnpm install
-```
-
-### 4. Database Setup & Migrations
+### 5. Database Setup & Migrations
 ```bash
 # Apply migrations to database
 npx prisma migrate dev
@@ -95,12 +101,12 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
-### 5. Running the Application
+### 6. Running the Application
 ```bash
 # Development (watch mode)
 pnpm run dev
 
-# Production build
+# Production build & run
 pnpm run build
 pnpm run start:prod
 ```
