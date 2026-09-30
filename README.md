@@ -123,7 +123,8 @@ Once the backend is running, visit the interactive Swagger UI:
 
 You can authorize requests directly in the Swagger UI using the **Authorize** button with a Bearer JWT token.
 
-A complete Postman manual testing walkthrough is also available in [POSTMAN_TESTING_GUIDE.md](./POSTMAN_TESTING_GUIDE.md).
+A ready-to-import Postman Collection file is available at [`AppifyDevs - backend.json`](./AppifyDevs%20-%20backend.json) with full request workflows documented in [POSTMAN_TESTING_GUIDE.md](./POSTMAN_TESTING_GUIDE.md).
+
 
 ---
 
